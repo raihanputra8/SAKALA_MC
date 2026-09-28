@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+@layer base {
+  :root {
+    --sakala-dark: #070F18;
+    --sakala-dark-surface: #0C1724;
+    --sakala-cream: #F5F4EF;
+    --sakala-cream-card: #FFFFFF;
+    --sakala-gold: #C5AA00;
+    --sakala-gold-muted: rgba(197, 170, 0, 0.25);
+    --sakala-blue: #0047AB;
+  }
+
+  html {
+    scroll-behavior: auto; /* Let Lenis manage buttery smooth interpolation */
+  }
+
+  body {
+    background-color: var(--sakala-cream);
+    color: #171717;
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar for raw archival feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #070F18;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C5AA00;
+  }
+}
+
+.font-serif-editorial {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+.font-western {
+  font-family: var(--font-rye), Georgia, serif;
+}
+
+.bg-sakala-dark {
+  background-color: #070F18;
+}
+
+.bg-sakala-surface {
+  background-color: #0C1724;
+}
+
+.bg-sakala-cream {
+  background-color: #F5F4EF;
+}
+
+.text-sakala-gold {
+  color: #C5AA00;
+}
+
+.border-sakala-gold {
+  border-color: rgba(197, 170, 0, 0.3);
+}
+
+.border-sakala-cream {
+  border-color: #E2DFD2;
+}
+
+/* Glassmorphic effects */
+.glass-header {
+  background: rgba(245, 244, 239, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ========================================================
+   SILKY SMOOTH GPU-OPTIMIZED ANIMATIONS & TRANSITIONS
+   (Zero main-thread jank, 100% compositor-driven)
+   ======================================================== */
+
+@keyframes smoothFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes smoothSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle, organic floating with zero filter repaints */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-fade-in {
+  animation: smoothFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in-up {
+  animation: smoothSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-float-gentle {
+  animation: floatGentle 4.5s ease-in-out infinite;
+}
+
+/* Nav link elegant animated underline */
+.nav-link-animated {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+}
+
+.nav-link-animated::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--sakala-gold);
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link-animated:hover::after {
+  width: 100%;
+}
+
+/* Buttery Card Hover Elevation with GPU acceleration */
+.card-interactive {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease;
+  will-change: transform;
+}
+
+.card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.1), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Tactile Micro-Interactions on buttons */
+.btn-tactile {
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.2s ease,
+              box-shadow 0.2s ease,
+              color 0.2s ease;
+}
+
+.btn-tactile:hover {
+  transform: translateY(-1px);
+}
+
+.btn-tactile:active {
+  transform: scale(0.98);
+}
+
+/* Scale-in animation for modals */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
