@@ -171,217 +171,108 @@ export default function ShopPage() {
           </div>
         </section>
 
-        {/* Featured Product Banner - Archival Specimen Showcase */}
-        <section className="py-8 max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="relative bg-[#09111C] text-white rounded-xs border border-[#1E293B] shadow-2xl overflow-hidden">
-            {/* Subtle Technical Grid Background Accents */}
-            <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#0047AB]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#C5AA00]/5 rounded-full blur-3xl pointer-events-none" />
+        {/* Featured Product Section - Clean Vintage Motorcycle Club Style */}
+        <section className="py-10 max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="bg-[#070F18] text-white p-8 sm:p-10 lg:p-14 rounded-xs shadow-xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              {/* LEFT COLUMN (Product Info) */}
+              <div className="lg:col-span-7 flex flex-col justify-center">
+                {/* 1. Title: "BROTHERHOOD" (Massive, bold, white font) */}
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-none mb-2">
+                  BROTHERHOOD
+                </h1>
 
-            {/* Archival Ledger Top Bar */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 px-6 py-3 border-b border-[#1E293B] bg-[#070D16]/90 text-[10px] font-mono tracking-[0.2em] text-[#94A3B8] uppercase">
-              <div className="flex items-center gap-3">
-                <span className="text-[#C5AA00] font-bold">[ SPEC NO. SKL-JKT-03 ]</span>
-                <span className="hidden sm:inline text-[#475569]">|</span>
-                <span className="hidden sm:inline">SAKALA MOTO APPAREL DIVISION</span>
-                <span className="hidden sm:inline text-[#475569]">|</span>
-                <span className="hidden md:inline text-[#64748B]">BATCH: 02 // BANDUNG</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-emerald-400 font-bold">READY TO SHIP — 8 PCS TERSISA</span>
-              </div>
-            </div>
+                {/* 2. Subtitle: "Coach Jacket - Navy Heritage" (Simple, golden yellow, no slashes) */}
+                <p className="text-lg sm:text-xl font-bold text-[#F0D000] tracking-wide mb-6">
+                  Coach Jacket - Navy Heritage
+                </p>
 
-            {/* Main Content Grid */}
-            <div className="relative z-10 p-6 sm:p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              {/* Left Column: Product Information & Controls */}
-              <div className="lg:col-span-7 flex flex-col justify-between">
-                <div>
-                  {/* Category Pill & Badge */}
-                  <div className="flex flex-wrap items-center gap-2.5 mb-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9px] font-bold tracking-[0.22em] uppercase bg-[#C5AA00]/15 text-[#C5AA00] border border-[#C5AA00]/30 rounded-xs">
-                      <Sparkles className="w-3 h-3" />
-                      EDISI RESMI SAKALA MC
-                    </span>
-                    <span className="text-[10px] font-mono tracking-[0.2em] text-[#64748B] uppercase">
-                      HEAVYWEATHER COACH RIDING SPEC
-                    </span>
+                {/* 3. Description: White, readable paragraph */}
+                <p className="text-sm sm:text-base text-gray-200 leading-relaxed mb-8 max-w-xl">
+                  Jaket coach berkarakter tangguh berbahan nylon tahan angin berdensitas tinggi dengan warna biru khas Sakala. Dirancang dengan potongan relaxed fit untuk kenyamanan riding malam, proteksi terpaan angin jalanan, dan gaya harian.
+                </p>
+
+                {/* 4. Specs Grid: A simple, clean 2x2 text grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-8 pb-8 border-b border-white/10 max-w-xl">
+                  <div>
+                    <span className="text-xs font-bold text-[#F0D000] uppercase block mb-1">Material</span>
+                    <span className="text-sm text-white font-medium">High-Density Windproof Nylon</span>
                   </div>
-
-                  {/* Main Headings */}
-                  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-[0.95] mb-2 font-sans">
-                    BROTHERHOOD
-                  </h2>
-                  <div className="text-base sm:text-lg font-bold tracking-[0.2em] text-[#C5AA00] uppercase font-mono mb-4 flex items-center gap-2">
-                    <span>COACH JACKET</span>
-                    <span className="text-[#475569]">//</span>
-                    <span className="text-[#94A3B8] font-normal text-xs sm:text-sm">NAVY HERITAGE</span>
+                  <div>
+                    <span className="text-xs font-bold text-[#F0D000] uppercase block mb-1">Furing / Lining</span>
+                    <span className="text-sm text-white font-medium">Soft Breathable Quilted Lining</span>
                   </div>
-
-                  {/* Editorial Description */}
-                  <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed mb-6 max-w-xl font-normal">
-                    Jaket coach berkarakter tangguh berbahan nylon tahan angin berdensitas tinggi dengan warna biru khas Sakala. Dirancang dengan potongan relaxed fit untuk kenyamanan riding malam, proteksi terpaan angin jalanan, dan gaya harian.
-                  </p>
-
-                  {/* Technical Garment Specs Sheet */}
-                  <div className="grid grid-cols-2 gap-2.5 p-3.5 rounded-xs bg-[#070D16]/80 border border-[#1E293B] mb-6 max-w-xl text-[11px]">
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-bold tracking-[0.16em] text-[#C5AA00] uppercase">MATERIAL</span>
-                      <span className="text-slate-300 font-medium mt-0.5">High-Density Windproof Nylon</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-bold tracking-[0.16em] text-[#C5AA00] uppercase">FURING / LINING</span>
-                      <span className="text-slate-300 font-medium mt-0.5">Soft Breathable Quilted Lining</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-bold tracking-[0.16em] text-[#C5AA00] uppercase">BORDIR BELAKANG</span>
-                      <span className="text-slate-300 font-medium mt-0.5">Golden SAKALA Arch Typography</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-bold tracking-[0.16em] text-[#C5AA00] uppercase">FITUR RIDING</span>
-                      <span className="text-slate-300 font-medium mt-0.5">Brass Snaps & Drawcord Wind-Lock</span>
-                    </div>
+                  <div>
+                    <span className="text-xs font-bold text-[#F0D000] uppercase block mb-1">Bordir Belakang</span>
+                    <span className="text-sm text-white font-medium">Golden SAKALA Arch Typography</span>
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-[#F0D000] uppercase block mb-1">Fitur Riding</span>
+                    <span className="text-sm text-white font-medium">Brass Snaps & Drawcord Wind-Lock</span>
                   </div>
                 </div>
 
-                {/* Price & In-Card Size Selector & Action */}
-                <div className="pt-4 border-t border-[#1E293B] space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#64748B] uppercase block mb-1">
-                        HARGA RESMI // IDR & USD
-                      </span>
-                      <div className="flex items-baseline gap-2.5">
-                        <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                          Rp 1.150.000
-                        </span>
-                        <span className="text-xs font-mono text-[#94A3B8]">
-                          $82 USD
-                        </span>
-                      </div>
-                    </div>
+                {/* 5. Price: "Rp 1.150.000" (Bold, prominent, clean) */}
+                <div className="mb-6">
+                  <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    Rp 1.150.000
+                  </span>
+                </div>
 
-                    {/* Integrated In-Card Size Selector */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#C5AA00] uppercase">
-                          PILIH UKURAN:
-                        </span>
-                        <span className="text-[9px] text-[#64748B] font-mono">TERPILIH: {selectedSize}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {SIZES.map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
-                            className={`w-8 h-8 text-[11px] font-bold rounded-xs flex items-center justify-center transition-all ${
-                              selectedSize === size
-                                ? 'bg-[#C5AA00] text-[#070F18] font-black shadow-md scale-105'
-                                : 'bg-[#0F1A2A] text-slate-300 border border-[#22354E] hover:border-[#C5AA00] hover:text-white'
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
+                {/* 6. Action Area */}
+                <div className="space-y-5">
+                  {/* Size selector buttons (S, M, L, XL, XXL) in a clean row */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                      Ukuran:
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {SIZES.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`w-9 h-9 text-xs font-bold rounded-xs flex items-center justify-center transition-colors ${
+                            selectedSize === size
+                              ? 'bg-[#F0D000] text-[#070F18]'
+                              : 'bg-white/10 text-white hover:bg-white/20'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                  {/* A solid blue CTA Button: "TAMBAH KE KERANJANG" next to a "DETAIL PRODUK" link */}
+                  <div className="flex flex-wrap items-center gap-5 pt-1">
                     <button
                       onClick={handleAddFeatured}
-                      className={`inline-flex items-center justify-center gap-2.5 px-7 py-3.5 text-xs font-bold tracking-[0.18em] uppercase rounded-xs transition-all shadow-lg active:scale-[0.98] ${
-                        isAddedFeatured
-                          ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                          : 'bg-[#0047AB] hover:bg-[#00388A] text-white shadow-[#0047AB]/25'
-                      }`}
+                      className="bg-[#0047AB] hover:bg-[#00388A] active:scale-[0.99] text-white px-7 py-3.5 text-xs font-bold tracking-wider uppercase rounded-xs transition-all shadow-md"
                     >
-                      {isAddedFeatured ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[3]" />
-                          <span>BERHASIL DITAMBAHKAN! ({selectedSize})</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-4 h-4" />
-                          <span>TAMBAH KE KERANJANG ({selectedSize})</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
+                      {isAddedFeatured ? 'BERHASIL DITAMBAHKAN' : 'TAMBAH KE KERANJANG'}
                     </button>
 
                     <Link
                       href="/shop/prod-03"
-                      className="inline-flex items-center justify-center gap-2 bg-[#0F1A2A] hover:bg-[#16253B] text-slate-300 hover:text-white border border-[#22354E] hover:border-[#475569] px-5 py-3.5 text-xs font-bold tracking-[0.16em] uppercase rounded-xs transition-colors"
+                      className="text-xs font-bold tracking-wider uppercase text-gray-300 hover:text-[#F0D000] underline-offset-4 hover:underline transition-colors"
                     >
-                      <span>DETAIL PRODUK</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      DETAIL PRODUK
                     </Link>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Editorial Lookbook Specimen Plate */}
-              <div className="lg:col-span-5">
-                <div className="relative rounded-xs border border-[#22354E] bg-[#0E1724] p-3 shadow-xl group/plate">
-                  {/* Corner Crosshair Accents */}
-                  <span className="absolute -top-1.5 -left-1.5 text-xs font-mono text-[#C5AA00]/60 select-none">+</span>
-                  <span className="absolute -top-1.5 -right-1.5 text-xs font-mono text-[#C5AA00]/60 select-none">+</span>
-                  <span className="absolute -bottom-1.5 -left-1.5 text-xs font-mono text-[#C5AA00]/60 select-none">+</span>
-                  <span className="absolute -bottom-1.5 -right-1.5 text-xs font-mono text-[#C5AA00]/60 select-none">+</span>
-
-                  {/* Photo Container Celebrating The Natural Grounding Texture */}
-                  <div className="relative h-72 sm:h-96 w-full rounded-xs overflow-hidden border border-[#22354E]/70 bg-[#070D16]">
-                    <Image
-                      src="/assets/product_jacket.png"
-                      alt="Brotherhood Coach Jacket - Tampak Belakang"
-                      fill
-                      className="object-cover group-hover/plate:scale-105 transition-transform duration-700 ease-out"
-                    />
-
-                    {/* Subtle Gradient Overlay at bottom for readable badges */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#070D16]/90 via-transparent to-black/20 pointer-events-none" />
-
-                    {/* Top Plate Tag */}
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="px-2 py-1 text-[9px] font-mono font-bold tracking-[0.18em] uppercase bg-[#070D16]/85 text-white border border-white/20 rounded-xs backdrop-blur-xs">
-                        SPECIMEN NO. 03 // REAR ARCH
-                      </span>
-                    </div>
-
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="px-2 py-1 text-[9px] font-mono font-bold tracking-[0.16em] uppercase bg-[#C5AA00]/90 text-[#070F18] font-black rounded-xs">
-                        ARCHIVAL
-                      </span>
-                    </div>
-
-                    {/* Bottom Plate Annotations */}
-                    <div className="absolute bottom-3 left-3 right-3 z-10 flex items-end justify-between">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold text-white tracking-[0.18em] uppercase block drop-shadow-sm">
-                          GOLDEN ARCH EMBROIDERY
-                        </span>
-                        <span className="text-[9px] font-mono text-[#94A3B8] tracking-[0.14em] uppercase block">
-                          BANDUNG CRAFTED · RIDER SPEC
-                        </span>
-                      </div>
-                      <div className="w-7 h-7 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-white/80">
-                        <span className="text-[10px] font-mono">03</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footnote under photo */}
-                  <div className="flex items-center justify-between mt-2.5 px-1 text-[9px] font-mono text-[#64748B] uppercase tracking-wider">
-                    <span>ASPHALT FLATLAY SPECIMEN</span>
-                    <span>100% AUTHENTIC SAKALA</span>
-                  </div>
+              {/* RIGHT COLUMN (Product Image) */}
+              {/* Completely clean image: NO borders, NO text overlays, NO techy crosshairs, NO specimen labels */}
+              <div className="lg:col-span-5 flex items-center justify-center">
+                <div className="relative w-full aspect-square max-w-[480px]">
+                  <Image
+                    src="/assets/product_jacket.png"
+                    alt="Brotherhood Coach Jacket - SAKALA"
+                    fill
+                    priority
+                    className="object-contain"
+                  />
                 </div>
               </div>
             </div>
