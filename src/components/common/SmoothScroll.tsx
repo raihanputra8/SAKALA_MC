@@ -5,8 +5,14 @@ import Lenis from 'lenis';
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Respect user's motion preference
-    if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Respect user's motion preference or mobile touch devices
+    // Mobile browsers have native 120Hz GPU momentum scrolling and Lenis touch interception can swallow button taps
+    const isTouchDevice = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+    if (
+      typeof window === 'undefined' || 
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      isTouchDevice
+    ) {
       return;
     }
 

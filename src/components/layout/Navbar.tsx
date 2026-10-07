@@ -119,25 +119,27 @@ export default function Navbar() {
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-5 z-50">
+          <div className="flex items-center gap-2 sm:gap-5 z-50">
             {/* Search Trigger */}
             <button
+              type="button"
               onClick={() => setSearchModalOpen(true)}
-              className="text-[#070F18] hover:text-[#C5AA00] transition-colors p-1.5 flex items-center gap-1.5 btn-tactile"
+              className="text-[#070F18] hover:text-[#C5AA00] transition-colors p-2 flex items-center justify-center min-w-[40px] min-h-[40px] rounded-xs btn-tactile touch-manipulation cursor-pointer"
               aria-label="Open Search"
               title="Search archive"
             >
-              <Search className="w-4 h-4 stroke-[2]" />
+              <Search className="w-4.5 h-4.5 stroke-[2]" />
             </button>
 
             {/* Cart Button with Count Badge */}
             <button
+              type="button"
               onClick={openCart}
-              className="relative flex items-center justify-center p-1.5 text-[#070F18] hover:text-[#C5AA00] transition-colors btn-tactile"
+              className="relative flex items-center justify-center p-2 text-[#070F18] hover:text-[#C5AA00] transition-colors min-w-[40px] min-h-[40px] rounded-xs btn-tactile touch-manipulation cursor-pointer"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 stroke-[2]" />
-              <span className="absolute -top-1 -right-2 bg-[#C5AA00] text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center transition-transform hover:scale-110">
+              <ShoppingBag className="w-4.5 h-4.5 stroke-[2]" />
+              <span className="absolute -top-0.5 -right-0.5 bg-[#C5AA00] text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center pointer-events-none transition-transform hover:scale-110">
                 {totalItems}
               </span>
             </button>
@@ -183,41 +185,25 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Burger Button (Prominent & tactile on mobile) */}
-            <div className="flex md:hidden items-center pl-1 border-l border-[#E5E2D9]">
+            {/* Mobile Burger Button (Ergonomic touch target & instant response) */}
+            <div className="flex md:hidden items-center pl-1 sm:pl-2 border-l border-[#E5E2D9]">
               <button
                 id="mobile-menu-burger-btn"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`relative flex items-center justify-center w-10 h-10 rounded-xs border transition-all duration-200 focus:outline-none ${
+                type="button"
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className={`relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-xs border transition-all duration-200 cursor-pointer touch-manipulation select-none active:scale-95 focus:outline-none ${
                   mobileMenuOpen
-                    ? 'bg-[#070F18] border-[#C5AA00] text-[#C5AA00]'
+                    ? 'bg-[#070F18] border-[#C5AA00] text-[#C5AA00] shadow-sm'
                     : 'bg-white border-[#D8D4C7] text-[#070F18] hover:border-[#C5AA00] hover:text-[#C5AA00] shadow-2xs'
                 }`}
                 aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
                 aria-expanded={mobileMenuOpen}
               >
-                {/* Classic 3-bar hamburger lines */}
-                <div className="w-4.5 h-3.5 flex flex-col justify-between items-center pointer-events-none">
-                  <span
-                    className={`w-full h-0.5 rounded-full transition-all duration-300 transform origin-center ${
-                      mobileMenuOpen
-                        ? 'rotate-45 translate-y-[5px] bg-[#C5AA00]'
-                        : 'bg-current'
-                    }`}
-                  />
-                  <span
-                    className={`w-full h-0.5 rounded-full transition-all duration-200 ${
-                      mobileMenuOpen ? 'opacity-0 scale-0' : 'bg-current opacity-100'
-                    }`}
-                  />
-                  <span
-                    className={`w-full h-0.5 rounded-full transition-all duration-300 transform origin-center ${
-                      mobileMenuOpen
-                        ? '-rotate-45 -translate-y-[5px] bg-[#C5AA00]'
-                        : 'bg-current'
-                    }`}
-                  />
-                </div>
+                {mobileMenuOpen ? (
+                  <X className="w-5 h-5 text-[#C5AA00] stroke-[2.2]" />
+                ) : (
+                  <Menu className="w-5 h-5 text-[#070F18] stroke-[2.2]" />
+                )}
               </button>
             </div>
           </div>
@@ -225,7 +211,7 @@ export default function Navbar() {
 
         {/* Mobile Navigation Drawer / Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-x-0 top-20 bottom-0 bg-[#070F18]/98 backdrop-blur-xl border-t border-[#C5AA00]/20 z-50 flex flex-col justify-between overflow-y-auto animate-fade-in">
+          <div className="md:hidden fixed inset-x-0 top-20 bottom-0 bg-[#070F18]/98 backdrop-blur-xl border-t border-[#C5AA00]/20 z-50 flex flex-col justify-between overflow-y-auto overscroll-contain animate-fade-in">
             <div className="p-6 space-y-2">
               <span className="text-[9px] font-bold tracking-[0.3em] text-[#C5AA00] uppercase block mb-3">
                 MENU NAVIGASI

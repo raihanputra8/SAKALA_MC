@@ -14,13 +14,14 @@
 
   html {
     scroll-behavior: auto; /* Let Lenis manage buttery smooth interpolation */
+    overflow-x: clip;
   }
 
   body {
     background-color: var(--sakala-cream);
     color: #171717;
     font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Custom scrollbar for raw archival feel */
