@@ -11,6 +11,8 @@ const cspDirectives = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://*.cdninstagram.com https://*.fbcdn.net https://*.instagram.com",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.instagram.com",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+  "media-src 'self' https://*.supabase.co blob: data:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
