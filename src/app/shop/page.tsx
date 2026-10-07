@@ -247,7 +247,10 @@ export default function ShopPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredItems.map((item) => {
-                const isWaitlist = item.stock_status === 'waitlist' || item.stock_count === 0;
+                const isOutOfStock =
+                  item.stock_status === 'waitlist' ||
+                  item.stock_status === 'sold_out' ||
+                  item.stock_count === 0;
 
                 return (
                   <EditableWrapper
@@ -256,54 +259,80 @@ export default function ShopPage() {
                     className="h-full"
                   >
                     <div
-                      className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group h-full"
+                      className={`bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs transition-all duration-300 flex flex-col justify-between h-full ${
+                        isOutOfStock
+                          ? 'opacity-70 cursor-not-allowed select-none'
+                          : 'hover:shadow-md hover:border-[#070F18] group'
+                      }`}
                     >
-                      <Link 
-                        href={`/shop/${item.id}`}
-                        className="relative h-64 w-full bg-[#FAF9F5] p-6 flex items-center justify-center border-b border-[#E5E2D9] overflow-hidden block"
-                      >
-                        <div className="relative w-full h-full">
+                      {/* Image Box - satu kotak penuh (aspect-square object-cover) */}
+                      {isOutOfStock ? (
+                        <div className="relative aspect-square w-full bg-[#F5F4EF] border-b border-[#E5E2D9] overflow-hidden">
                           <Image
                             src={item.image_url}
                             alt={item.name}
                             fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                            className="object-cover w-full h-full grayscale-[40%]"
                           />
+                          <div className="absolute top-3 left-3 bg-[#070F18]/90 text-white font-mono text-[9px] font-bold tracking-[0.2em] px-2.5 py-1 rounded-xs uppercase shadow-xs">
+                            HABIS
+                          </div>
                         </div>
-                      </Link>
+                      ) : (
+                        <Link 
+                          href={`/shop/${item.id}`}
+                          className="relative aspect-square w-full bg-[#FAF9F5] border-b border-[#E5E2D9] overflow-hidden block"
+                        >
+                          <Image
+                            src={item.image_url}
+                            alt={item.name}
+                            fill
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </Link>
+                      )}
 
                       <div className="p-5 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] font-bold tracking-[0.18em] text-[#64748B] uppercase block mb-1">
+                          <span className="text-[9px] font-mono tracking-widest text-[#78716C] uppercase block mb-1">
                             SKU: {item.sku}
                           </span>
-                          <Link href={`/shop/${item.id}`}>
-                            <h3 className="font-serif-editorial text-sm font-bold text-[#070F18] leading-snug mb-2 group-hover:text-[#0047AB] transition-colors">
+
+                          {isOutOfStock ? (
+                            <h3 className="font-serif-editorial text-sm font-bold text-[#78716C] leading-snug mb-2 cursor-not-allowed">
                               {item.name}
                             </h3>
-                          </Link>
-                          <p className="text-[11px] text-[#64748B] leading-relaxed mb-4">
+                          ) : (
+                            <Link href={`/shop/${item.id}`}>
+                              <h3 className="font-serif-editorial text-sm font-bold text-[#070F18] leading-snug mb-2 group-hover:text-[#C5AA00] transition-colors">
+                                {item.name}
+                              </h3>
+                            </Link>
+                          )}
+
+                          <p className="text-[11px] text-[#78716C] leading-relaxed mb-4">
                             {item.description}
                           </p>
                         </div>
 
                         <div className="pt-4 border-t border-[#E5E2D9] flex items-center justify-between">
                           <div>
-                            <span className="text-xs font-bold text-[#070F18] block">
+                            <span className="text-xs font-bold font-mono text-[#070F18] block">
                               Rp {item.price_idr.toLocaleString('id-ID')}
                             </span>
                           </div>
 
-                          {isWaitlist ? (
-                            <span
-                              className="bg-[#FAF9F5] border border-[#E5E2D9] text-[#64748B] text-[9px] font-bold tracking-[0.16em] uppercase px-3 py-2 rounded-xs"
+                          {isOutOfStock ? (
+                            <button
+                              disabled
+                              className="bg-[#F5F4EF] border border-[#E5E2D9] text-[#A8A29E] text-[9px] font-mono font-bold tracking-[0.16em] uppercase px-3.5 py-2 rounded-xs cursor-not-allowed select-none"
                             >
                               HABIS
-                            </span>
+                            </button>
                           ) : (
                             <button
                               onClick={() => addToCart(item, selectedSize)}
-                              className="bg-[#070F18] hover:bg-[#0047AB] text-white text-[10px] font-bold tracking-[0.18em] uppercase px-4 py-2 rounded-xs transition-colors shadow-xs"
+                              className="bg-[#070F18] hover:bg-[#C5AA00] hover:text-[#070F18] text-white text-[10px] font-bold tracking-[0.18em] uppercase px-4 py-2 rounded-xs transition-colors shadow-xs"
                             >
                               BELI
                             </button>

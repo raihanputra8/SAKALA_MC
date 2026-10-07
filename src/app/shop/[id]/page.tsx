@@ -67,39 +67,80 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {relatedProducts.map((item) => (
-              <Link
-                key={item.id}
-                href={`/shop/${item.id}`}
-                className="group bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs hover:border-[#070F18] transition-all flex flex-col justify-between"
-              >
-                <div className="relative h-64 w-full bg-[#F5F4EF] overflow-hidden flex items-center justify-center p-6">
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    fill
-                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
+            {relatedProducts.map((item) => {
+              const isItemOutOfStock =
+                item.stock_status === 'waitlist' ||
+                item.stock_status === 'sold_out' ||
+                item.stock_count === 0;
 
-                <div className="p-6">
-                  <span className="text-[10px] font-bold tracking-wider text-[#0047AB] uppercase block mb-1">
-                    {item.category}
-                  </span>
-                  <h4 className="font-serif-editorial text-base font-bold text-[#070F18] group-hover:text-[#0047AB] transition-colors mb-2">
-                    {item.name}
-                  </h4>
-                  <div className="flex justify-between items-center pt-3 border-t border-[#E5E2D9] text-xs">
-                    <span className="font-bold text-[#070F18]">
-                      Rp {item.price_idr.toLocaleString('id-ID')}
+              return isItemOutOfStock ? (
+                <div
+                  key={item.id}
+                  className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between opacity-70 cursor-not-allowed select-none"
+                >
+                  <div className="relative aspect-square w-full bg-[#F5F4EF] overflow-hidden border-b border-[#E5E2D9]">
+                    <Image
+                      src={item.image_url}
+                      alt={item.name}
+                      fill
+                      className="object-cover w-full h-full grayscale-[40%]"
+                    />
+                    <div className="absolute top-3 left-3 bg-[#070F18]/90 text-white font-mono text-[9px] font-bold tracking-[0.2em] px-2.5 py-1 rounded-xs uppercase">
+                      HABIS
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <span className="text-[10px] font-mono tracking-widest text-[#78716C] uppercase block mb-1">
+                      {item.category}
                     </span>
-                    <span className="text-[11px] font-bold tracking-wider uppercase text-[#0047AB] group-hover:translate-x-0.5 transition-transform">
-                      Lihat Produk →
-                    </span>
+                    <h4 className="font-serif-editorial text-base font-bold text-[#78716C] mb-2">
+                      {item.name}
+                    </h4>
+                    <div className="flex justify-between items-center pt-3 border-t border-[#E5E2D9] text-xs">
+                      <span className="font-mono font-bold text-[#070F18]">
+                        Rp {item.price_idr.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#A8A29E]">
+                        STOK HABIS
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </Link>
-            ))}
+              ) : (
+                <Link
+                  key={item.id}
+                  href={`/shop/${item.id}`}
+                  className="group bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs hover:border-[#070F18] hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div className="relative aspect-square w-full bg-[#FAF9F5] overflow-hidden border-b border-[#E5E2D9]">
+                    <Image
+                      src={item.image_url}
+                      alt={item.name}
+                      fill
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+
+                  <div className="p-6">
+                    <span className="text-[10px] font-mono tracking-widest text-[#78716C] uppercase block mb-1">
+                      {item.category}
+                    </span>
+                    <h4 className="font-serif-editorial text-base font-bold text-[#070F18] group-hover:text-[#C5AA00] transition-colors mb-2">
+                      {item.name}
+                    </h4>
+                    <div className="flex justify-between items-center pt-3 border-t border-[#E5E2D9] text-xs">
+                      <span className="font-mono font-bold text-[#070F18]">
+                        Rp {item.price_idr.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-[11px] font-bold tracking-wider uppercase text-[#070F18] group-hover:text-[#C5AA00] group-hover:translate-x-0.5 transition-all">
+                        Lihat Produk →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       </main>

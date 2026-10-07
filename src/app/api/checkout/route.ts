@@ -139,9 +139,13 @@ export async function POST(req: NextRequest) {
         }
 
         // Validate stock status
-        if (officialProduct.stock_status === 'sold_out') {
+        if (
+          officialProduct.stock_status === 'sold_out' ||
+          officialProduct.stock_status === 'waitlist' ||
+          (typeof officialProduct.stock_count === 'number' && officialProduct.stock_count <= 0)
+        ) {
           return NextResponse.json(
-            { success: false, error: `Produk "${officialProduct.name}" saat ini telah habis terjual (sold out).` },
+            { success: false, error: `Produk "${officialProduct.name}" saat ini sedang habis dan tidak dapat dipesan.` },
             { status: 400 }
           );
         }

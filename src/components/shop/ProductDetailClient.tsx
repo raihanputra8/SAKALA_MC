@@ -27,7 +27,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
+  const isOutOfStock =
+    product.stock_status === 'waitlist' ||
+    product.stock_status === 'sold_out' ||
+    product.stock_count === 0;
+
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     for (let i = 0; i < quantity; i++) {
       addToCart(product, selectedSize);
     }
@@ -36,6 +42,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     for (let i = 0; i < quantity; i++) {
       addToCart(product, selectedSize);
     }
@@ -55,7 +62,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       <div className="lg:col-span-7 flex flex-col justify-center">
         {/* Subtitle / Category Badge */}
         <div className="mb-2">
-          <span className="text-xs font-bold tracking-[0.2em] text-[#0047AB] uppercase">
+          <span className="text-xs font-mono font-bold tracking-[0.2em] text-[#78716C] uppercase">
             {subtitle}
           </span>
         </div>
@@ -66,32 +73,32 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         </h1>
 
         {/* Description */}
-        <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-6 max-w-xl">
+        <p className="text-xs sm:text-sm text-[#78716C] leading-relaxed mb-6 max-w-xl">
           {description}
         </p>
 
         {/* Specs Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 mb-6 p-5 bg-white border border-[#E5E2D9] rounded-xs max-w-xl shadow-2xl/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 mb-6 p-5 bg-white border border-[#E5E2D9] rounded-xs max-w-xl shadow-xs">
           <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Material</span>
+            <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider block mb-0.5">Material</span>
             <span className="text-xs font-semibold text-[#070F18]">
               {isBrotherhoodJacket ? 'High-Density Windproof Nylon' : 'Heavyweight Premium Cotton'}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Furing / Lining</span>
+            <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider block mb-0.5">Furing / Lining</span>
             <span className="text-xs font-semibold text-[#070F18]">
               {isBrotherhoodJacket ? 'Soft Breathable Quilted Lining' : 'Standard Soft Interior'}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Bordir Belakang</span>
+            <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider block mb-0.5">Bordir Belakang</span>
             <span className="text-xs font-semibold text-[#070F18]">
               {isBrotherhoodJacket ? 'Golden SAKALA Arch Typography' : 'Official Sakala Motor Emblem'}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Fitur Riding</span>
+            <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider block mb-0.5">Fitur Riding</span>
             <span className="text-xs font-semibold text-[#070F18]">
               {isBrotherhoodJacket ? 'Brass Snaps & Drawcord Wind-Lock' : 'Reinforced Double Stitched Seams'}
             </span>
@@ -100,7 +107,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
         {/* Price */}
         <div className="mb-6">
-          <span className="text-3xl sm:text-4xl font-black text-[#070F18] tracking-tight">
+          <span className="text-3xl sm:text-4xl font-black font-mono text-[#070F18] tracking-tight">
             Rp {product.price_idr.toLocaleString('id-ID')}
           </span>
         </div>
@@ -116,9 +123,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 <button
                   key={size}
                   type="button"
+                  disabled={isOutOfStock}
                   onClick={() => setSelectedSize(size)}
                   className={`w-10 h-10 text-xs font-bold rounded-xs flex items-center justify-center transition-all ${
-                    selectedSize === size
+                    isOutOfStock
+                      ? 'bg-[#F5F4EF] text-[#A8A29E] border border-[#E5E2D9] cursor-not-allowed'
+                      : selectedSize === size
                       ? 'bg-[#070F18] text-white shadow-xs'
                       : 'bg-white border border-[#E5E2D9] text-[#070F18] hover:border-[#070F18]'
                   }`}
@@ -139,52 +149,69 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className="bg-[#0047AB] hover:bg-[#00388A] active:scale-[0.99] text-white px-8 py-3.5 text-xs font-bold tracking-wider uppercase rounded-xs transition-all shadow-sm flex items-center gap-2"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>TAMBAH KE KERANJANG</span>
-            </button>
+            {isOutOfStock ? (
+              <button
+                type="button"
+                disabled
+                className="bg-[#F5F4EF] border border-[#E5E2D9] text-[#A8A29E] px-8 py-3.5 text-xs font-mono font-bold tracking-wider uppercase rounded-xs cursor-not-allowed select-none flex items-center gap-2"
+              >
+                <span>PRODUK HABIS (STOK KOSONG)</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="bg-[#070F18] hover:bg-[#C5AA00] hover:text-[#070F18] active:scale-[0.99] text-white px-8 py-3.5 text-xs font-bold tracking-wider uppercase rounded-xs transition-all shadow-sm flex items-center gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>TAMBAH KE KERANJANG</span>
+                </button>
 
-            <button
-              type="button"
-              onClick={handleBuyNow}
-              className="bg-[#070F18] hover:bg-black text-white px-6 py-3.5 text-xs font-bold tracking-wider uppercase rounded-xs transition-colors"
-            >
-              BELI SEKARANG
-            </button>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="bg-[#C5AA00] hover:bg-[#D4B800] text-[#070F18] px-6 py-3.5 text-xs font-bold tracking-wider uppercase rounded-xs transition-colors shadow-sm"
+                >
+                  BELI SEKARANG
+                </button>
+              </>
+            )}
           </div>
 
           {/* Trust Guarantees */}
-          <div className="pt-4 border-t border-[#E5E2D9] flex flex-wrap gap-6 text-[11px] text-[#64748B]">
+          <div className="pt-4 border-t border-[#E5E2D9] flex flex-wrap gap-6 text-[11px] text-[#78716C]">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#0047AB]" />
+              <ShieldCheck className="w-4 h-4 text-[#78716C]" />
               100% Produk Original Sakala
             </span>
             <span className="flex items-center gap-1.5">
-              <Truck className="w-4 h-4 text-[#0047AB]" />
+              <Truck className="w-4 h-4 text-[#78716C]" />
               Pengiriman Cepat Se-Indonesia
             </span>
             <span className="flex items-center gap-1.5">
-              <RotateCcw className="w-4 h-4 text-[#0047AB]" />
+              <RotateCcw className="w-4 h-4 text-[#78716C]" />
               Garansi Retur 7 Hari
             </span>
           </div>
         </div>
       </div>
 
-      {/* RIGHT COLUMN (Product Image) */}
+      {/* RIGHT COLUMN (Product Image - Full Bleed Square) */}
       <div className="lg:col-span-5 flex items-center justify-center">
-        <div className="relative w-full aspect-square max-w-[460px] bg-white border border-[#E5E2D9] rounded-xs p-8 shadow-xs flex items-center justify-center">
+        <div className="relative w-full aspect-square max-w-[480px] bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs">
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             priority
-            className="object-contain p-6"
+            className="object-cover w-full h-full"
           />
+          {isOutOfStock && (
+            <div className="absolute top-4 left-4 bg-[#070F18]/90 text-white font-mono text-[10px] font-bold tracking-[0.2em] px-3 py-1 rounded-xs uppercase shadow-xs">
+              STOK HABIS
+            </div>
+          )}
         </div>
       </div>
     </div>

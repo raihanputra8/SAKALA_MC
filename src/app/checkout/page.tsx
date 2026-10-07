@@ -87,6 +87,18 @@ export default function CheckoutPage() {
       alert('Keranjang belanja Anda masih kosong.');
       return;
     }
+
+    const outOfStockItem = cart.find(
+      (i) =>
+        i.product.stock_status === 'waitlist' ||
+        i.product.stock_status === 'sold_out' ||
+        i.product.stock_count === 0
+    );
+    if (outOfStockItem) {
+      alert(`Produk "${outOfStockItem.product.name}" saat ini sedang habis stok. Harap hapus produk tersebut dari keranjang sebelum melanjutkan checkout.`);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -361,23 +373,23 @@ export default function CheckoutPage() {
                 ) : (
                   cart.map((item) => (
                     <div key={item.product.id} className="py-3 flex items-center gap-3">
-                      <div className="relative w-12 h-12 bg-[#FAF9F5] border border-[#E5E2D9] rounded-xs flex-shrink-0 p-1">
+                      <div className="relative w-12 h-12 bg-[#FAF9F5] border border-[#E5E2D9] rounded-xs flex-shrink-0 overflow-hidden">
                         <Image
                           src={item.product.image_url}
                           alt={item.product.name}
                           fill
-                          className="object-contain"
+                          className="object-cover w-full h-full"
                         />
                       </div>
                       <div className="flex-1 min-w-0 text-xs">
                         <h4 className="font-bold text-[#070F18] truncate">
                           {item.product.name}
                         </h4>
-                        <span className="text-[10px] text-[#64748B]">
+                        <span className="text-[10px] text-[#78716C] font-mono">
                           Jumlah: {item.quantity} • Ukuran: {item.size || 'M'}
                         </span>
                       </div>
-                      <span className="text-xs font-bold text-[#070F18] flex-shrink-0">
+                      <span className="text-xs font-mono font-bold text-[#070F18] flex-shrink-0">
                         Rp {(item.product.price_idr * item.quantity).toLocaleString('id-ID')}
                       </span>
                     </div>
@@ -386,14 +398,14 @@ export default function CheckoutPage() {
               </div>
 
               {/* Cost Breakdown */}
-              <div className="space-y-2 text-xs border-t border-[#E5E2D9] pt-4 mb-6">
-                <div className="flex justify-between text-[#64748B]">
+              <div className="space-y-2 text-xs border-t border-[#E5E2D9] pt-4 mb-6 font-mono">
+                <div className="flex justify-between text-[#78716C]">
                   <span>Subtotal ({totalItems} item)</span>
                   <span className="font-semibold text-[#070F18]">
                     Rp {totalIdr.toLocaleString('id-ID')}
                   </span>
                 </div>
-                <div className="flex justify-between text-[#64748B]">
+                <div className="flex justify-between text-[#78716C]">
                   <span>Ongkos Kirim</span>
                   <span className="font-semibold text-[#070F18]">
                     {cart.length > 0 ? `Rp ${shippingFee.toLocaleString('id-ID')}` : 'Rp 0'}
@@ -401,7 +413,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-base font-bold text-[#070F18] pt-3 border-t border-[#E5E2D9]">
                   <span>Total Pembayaran</span>
-                  <span className="text-[#0047AB]">
+                  <span className="font-serif-editorial text-lg text-[#070F18]">
                     Rp {grandTotal.toLocaleString('id-ID')}
                   </span>
                 </div>
@@ -411,7 +423,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={submitting || cart.length === 0}
-                className="w-full bg-[#070F18] hover:bg-[#0047AB] disabled:opacity-50 text-white py-4 text-xs font-bold tracking-[0.2em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                className="w-full bg-[#070F18] hover:bg-[#C5AA00] hover:text-[#070F18] disabled:opacity-50 text-white py-4 text-xs font-bold tracking-[0.2em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer"
               >
                 <span>{submitting ? 'MEMPROSES PESANAN...' : 'LANJUTKAN KE PEMBAYARAN'}</span>
                 <ArrowRight className="w-4 h-4" />

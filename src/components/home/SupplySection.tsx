@@ -94,7 +94,10 @@ export default function SupplySection({ initialProducts }: { initialProducts: Pr
         {/* 4 Products: Horizontal Swipe on Mobile, 2/4-Col Grid on Desktop */}
         <div className="flex sm:grid overflow-x-auto snap-x snap-mandatory no-scrollbar sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 pb-3 -mx-6 px-6 sm:mx-0 sm:px-0 mb-8 sm:mb-10">
           {filteredProducts.map((product, idx) => {
-            const isWaitlist = product.stock_status === 'waitlist';
+            const isOutOfStock =
+              product.stock_status === 'waitlist' ||
+              product.stock_status === 'sold_out' ||
+              product.stock_count === 0;
 
             return (
               <div key={product.id} className="w-[72vw] sm:w-auto shrink-0 snap-center">
@@ -102,48 +105,57 @@ export default function SupplySection({ initialProducts }: { initialProducts: Pr
                   <EditableWrapper
                     item={{ type: 'product', id: product.id, data: product as unknown as Record<string, unknown> }}
                   >
-                  <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs card-interactive flex flex-col justify-between group h-full hover:border-[#070F18] transition-all duration-300">
-                    {/* Image Container */}
-                    <div className="relative h-56 w-full bg-[#FAF9F5] p-5 flex items-center justify-center border-b border-[#E5E2D9] overflow-hidden">
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={product.image_url}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                          className="object-contain group-hover:scale-106 transition-transform duration-500 ease-out"
-                        />
-                      </div>
+                  <div className={`bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between h-full transition-all duration-300 ${
+                    isOutOfStock
+                      ? 'opacity-70 cursor-not-allowed select-none'
+                      : 'hover:border-[#070F18] hover:shadow-md card-interactive group'
+                  }`}>
+                    {/* Image Container - satu kotak penuh */}
+                    <div className="relative aspect-square w-full bg-[#FAF9F5] border-b border-[#E5E2D9] overflow-hidden">
+                      <Image
+                        src={product.image_url}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className={`object-cover w-full h-full transition-transform duration-500 ease-out ${
+                          isOutOfStock ? 'grayscale-[40%]' : 'group-hover:scale-105'
+                        }`}
+                      />
+                      {isOutOfStock && (
+                        <div className="absolute top-3 left-3 bg-[#070F18]/90 text-white font-mono text-[9px] font-bold tracking-[0.2em] px-2.5 py-1 rounded-xs uppercase">
+                          HABIS
+                        </div>
+                      )}
                     </div>
 
                     {/* Card Details */}
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
                         {/* SKU & Stock Tag */}
-                        <div className="flex items-center justify-between text-[9px] font-bold tracking-[0.18em] uppercase mb-1.5">
-                          <span className="text-[#64748B]">SKU: {product.sku}</span>
+                        <div className="flex items-center justify-between text-[9px] font-mono tracking-widest uppercase mb-1.5">
+                          <span className="text-[#78716C]">SKU: {product.sku}</span>
                           <span
                             className={`font-semibold ${
-                              product.stock_status === 'available'
-                                ? 'text-emerald-700'
+                              isOutOfStock
+                                ? 'text-[#78716C]'
                                 : product.stock_status === 'low_stock'
                                 ? 'text-amber-700'
-                                : 'text-slate-500'
+                                : 'text-emerald-700'
                             }`}
                           >
-                            {product.stock_status === 'low_stock'
-                              ? `ONLY ${product.stock_count} LEFT`
-                              : product.stock_status.toUpperCase()}
+                            {isOutOfStock ? 'HABIS' : product.stock_status === 'low_stock' ? `SISA ${product.stock_count}` : 'TERSEDIA'}
                           </span>
                         </div>
 
                         {/* Product Title */}
-                        <h3 className="font-serif-editorial text-sm font-bold text-[#070F18] tracking-tight leading-snug mb-1.5 group-hover:text-[#0047AB] transition-colors line-clamp-1">
+                        <h3 className={`font-serif-editorial text-sm font-bold tracking-tight leading-snug mb-1.5 line-clamp-1 ${
+                          isOutOfStock ? 'text-[#78716C]' : 'text-[#070F18] group-hover:text-[#C5AA00] transition-colors'
+                        }`}>
                           {product.name}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-[11px] text-[#64748B] leading-relaxed mb-3 line-clamp-2">
+                        <p className="text-[11px] text-[#78716C] leading-relaxed mb-3 line-clamp-2">
                           {product.description}
                         </p>
                       </div>
@@ -151,26 +163,23 @@ export default function SupplySection({ initialProducts }: { initialProducts: Pr
                       {/* Price & Action Button */}
                       <div className="pt-3 border-t border-[#E5E2D9] flex items-center justify-between">
                         <div>
-                          <span className="text-xs font-bold text-[#070F18] tracking-wide block">
+                          <span className="text-xs font-bold font-mono text-[#070F18] tracking-wide block">
                             IDR {product.price_idr.toLocaleString('id-ID')}
-                          </span>
-                          <span className="text-[9px] text-[#94A3B8] font-medium block">
-                            ${product.price_usd} USD
                           </span>
                         </div>
 
                         {!isEditMode && (
-                          isWaitlist ? (
+                          isOutOfStock ? (
                             <button
-                              onClick={() => alert(`Registered for waitlist: ${product.name}`)}
-                              className="bg-[#FAF9F5] border border-[#E5E2D9] hover:bg-[#070F18] hover:text-white text-[#070F18] text-[9px] font-bold tracking-[0.16em] uppercase px-2.5 py-1.5 rounded-xs transition-colors btn-tactile"
+                              disabled
+                              className="bg-[#F5F4EF] border border-[#E5E2D9] text-[#A8A29E] text-[9px] font-mono font-bold tracking-[0.16em] uppercase px-2.5 py-1.5 rounded-xs cursor-not-allowed select-none"
                             >
-                              WAITLIST
+                              HABIS
                             </button>
                           ) : (
                             <button
                               onClick={() => addToCart(product)}
-                              className="w-7 h-7 rounded-xs bg-[#070F18] hover:bg-[#C5AA00] text-white hover:text-black flex items-center justify-center transition-colors shadow-xs btn-tactile"
+                              className="w-7 h-7 rounded-xs bg-[#070F18] hover:bg-[#C5AA00] text-white hover:text-[#070F18] flex items-center justify-center transition-colors shadow-xs btn-tactile"
                               aria-label={`Add ${product.name} to Cart`}
                             >
                               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />

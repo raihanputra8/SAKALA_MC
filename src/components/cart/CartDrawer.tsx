@@ -63,61 +63,77 @@ export default function CartDrawer() {
                 </button>
               </div>
             ) : (
-              cart.map((item) => (
-                <div key={item.product.id} className="py-4 flex gap-4 items-center">
-                  <div className="relative w-20 h-20 bg-white border border-[#E5E2D9] rounded-xs flex-shrink-0 overflow-hidden p-2">
-                    <Image
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+              cart.map((item) => {
+                const isOutOfStock =
+                  item.product.stock_status === 'waitlist' ||
+                  item.product.stock_status === 'sold_out' ||
+                  item.product.stock_count === 0;
 
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[9px] font-bold tracking-[0.18em] text-[#64748B] uppercase block">
-                      SKU: {item.product.sku}
-                    </span>
-                    <h4 className="font-serif-editorial text-xs font-bold text-[#070F18] truncate mb-1">
-                      {item.product.name}
-                    </h4>
-                    <span className="text-xs font-bold text-[#070F18] block mb-2">
-                      Rp {(item.product.price_idr * item.quantity).toLocaleString('id-ID')}
-                    </span>
+                return (
+                  <div key={item.product.id} className="py-4 flex gap-4 items-center">
+                    <div className="relative w-20 h-20 bg-white border border-[#E5E2D9] rounded-xs flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        fill
+                        className={`object-cover w-full h-full ${isOutOfStock ? 'grayscale-[50%]' : ''}`}
+                      />
+                    </div>
 
-                    {/* Quantity Controls */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center border border-[#E5E2D9] rounded bg-white">
-                        <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="px-2 py-1 text-gray-500 hover:text-black"
-                          aria-label="Kurangi jumlah"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="px-2 text-xs font-bold text-[#070F18]">
-                          {item.quantity}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-mono tracking-widest text-[#78716C] uppercase block">
+                          SKU: {item.product.sku}
                         </span>
-                        <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="px-2 py-1 text-gray-500 hover:text-black"
-                          aria-label="Tambah jumlah"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
+                        {isOutOfStock && (
+                          <span className="text-[8px] font-mono font-bold tracking-wider uppercase px-1.5 py-0.5 bg-red-100 text-red-700 rounded-xs">
+                            HABIS
+                          </span>
+                        )}
                       </div>
 
-                      <button
-                        onClick={() => removeFromCart(item.product.id)}
-                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                        aria-label="Hapus produk"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <h4 className="font-serif-editorial text-xs font-bold text-[#070F18] truncate mb-1">
+                        {item.product.name}
+                      </h4>
+                      <span className="text-xs font-mono font-bold text-[#070F18] block mb-2">
+                        Rp {(item.product.price_idr * item.quantity).toLocaleString('id-ID')}
+                      </span>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center border border-[#E5E2D9] rounded bg-white">
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            className="px-2 py-1 text-gray-500 hover:text-black"
+                            aria-label="Kurangi jumlah"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="px-2 text-xs font-bold text-[#070F18]">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            disabled={isOutOfStock}
+                            className={`px-2 py-1 ${isOutOfStock ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-black'}`}
+                            aria-label="Tambah jumlah"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => removeFromCart(item.product.id)}
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                          aria-label="Hapus produk"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -125,25 +141,44 @@ export default function CartDrawer() {
           {cart.length > 0 && (
             <div className="p-6 bg-white border-t border-[#E5E2D9]">
               <div className="space-y-2 mb-6 text-xs">
-                <div className="flex items-center justify-between text-[#64748B]">
+                <div className="flex items-center justify-between text-[#78716C] font-mono">
                   <span>SUBTOTAL</span>
                   <span className="font-bold text-[#070F18]">
                     Rp {totalIdr.toLocaleString('id-ID')}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-[#64748B] pt-1">
+                <div className="flex items-center justify-between text-[11px] text-[#78716C]">
                   <span>Ongkos kirim dihitung saat checkout</span>
                 </div>
               </div>
 
-              <Link
-                href="/checkout"
-                onClick={closeCart}
-                className="w-full bg-[#070F18] hover:bg-[#0047AB] text-white py-4 text-xs font-bold tracking-[0.2em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 shadow-lg"
-              >
-                <span>LANJUTKAN KE PEMBAYARAN</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              {cart.some(
+                (item) =>
+                  item.product.stock_status === 'waitlist' ||
+                  item.product.stock_status === 'sold_out' ||
+                  item.product.stock_count === 0
+              ) ? (
+                <div className="space-y-2">
+                  <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 text-[10px] rounded-xs font-mono">
+                    Ada produk yang stoknya habis di keranjang. Silakan hapus produk tersebut untuk melanjutkan.
+                  </div>
+                  <button
+                    disabled
+                    className="w-full bg-[#E5E2D9] text-[#78716C] py-4 text-xs font-mono font-bold tracking-[0.2em] uppercase rounded-xs cursor-not-allowed"
+                  >
+                    PRODUK HABIS DI KERANJANG
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/checkout"
+                  onClick={closeCart}
+                  className="w-full bg-[#070F18] hover:bg-[#C5AA00] hover:text-[#070F18] text-white py-4 text-xs font-bold tracking-[0.2em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <span>LANJUTKAN KE PEMBAYARAN</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           )}
         </div>

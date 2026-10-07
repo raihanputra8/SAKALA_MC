@@ -42,6 +42,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const closeCart = () => setIsOpen(false);
 
   const addToCart = (product: Product, size = 'M') => {
+    // Protect against out-of-stock items being added to cart
+    const isOutOfStock =
+      product.stock_status === 'waitlist' ||
+      product.stock_status === 'sold_out' ||
+      (typeof product.stock_count === 'number' && product.stock_count <= 0);
+
+    if (isOutOfStock) {
+      console.warn(`[Cart] Menolak penambahan produk "${product.name}" karena stok habis.`);
+      return;
+    }
+
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id && item.size === size);
       if (existing) {
