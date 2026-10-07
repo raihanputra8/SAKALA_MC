@@ -193,14 +193,14 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className={`relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-xs border transition-all duration-200 cursor-pointer touch-manipulation select-none active:scale-95 focus:outline-none ${
                   mobileMenuOpen
-                    ? 'bg-[#070F18] border-[#C5AA00] text-[#C5AA00] shadow-sm'
-                    : 'bg-white border-[#D8D4C7] text-[#070F18] hover:border-[#C5AA00] hover:text-[#C5AA00] shadow-2xs'
+                    ? 'bg-[#070F18] border-[#070F18] text-white shadow-sm'
+                    : 'bg-white border-[#D8D4C7] text-[#070F18] hover:border-[#070F18] shadow-2xs'
                 }`}
                 aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
                 aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-[#C5AA00] stroke-[2.2]" />
+                  <X className="w-5 h-5 text-white stroke-[2.2]" />
                 ) : (
                   <Menu className="w-5 h-5 text-[#070F18] stroke-[2.2]" />
                 )}
@@ -211,139 +211,129 @@ export default function Navbar() {
 
         {/* Mobile Navigation Drawer / Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-x-0 top-20 bottom-0 bg-[#070F18]/98 backdrop-blur-xl border-t border-[#C5AA00]/20 z-50 flex flex-col justify-between overflow-y-auto overscroll-contain animate-fade-in">
-            <div className="p-6 space-y-2">
-              <span className="text-[9px] font-bold tracking-[0.3em] text-[#C5AA00] uppercase block mb-3">
-                MENU NAVIGASI
+          <div className="md:hidden fixed inset-x-0 top-20 bottom-0 bg-[#F5F4EF] border-t border-[#E5E2D9] z-50 flex flex-col justify-between overflow-y-auto overscroll-contain animate-fade-in shadow-xl">
+            <div className="p-6 space-y-1">
+              <span className="text-[10px] font-bold tracking-[0.22em] text-[#78716C] uppercase block mb-3 pb-2 border-b border-[#E5E2D9]">
+                NAVIGASI
               </span>
 
-              {/* Navigation Links */}
+              {/* Main Navigation Links matching desktop */}
               <Link
                 href="/shop"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-white/5 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
               >
-                <div>
-                  <span className="font-serif-editorial text-xl font-bold tracking-wider text-white group-hover:text-[#C5AA00] transition-colors block">
-                    SHOP
-                  </span>
-                  <span className="text-[10px] tracking-[0.18em] text-[#94A3B8] uppercase">
-                    Pakaian &amp; Perlengkapan
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                  SHOP
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
               </Link>
 
               <Link
                 href="/bikes"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-white/5 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
               >
-                <div>
-                  <span className="font-serif-editorial text-xl font-bold tracking-wider text-white group-hover:text-[#C5AA00] transition-colors block">
-                    GARASI MOTOR
-                  </span>
-                  <span className="text-[10px] tracking-[0.18em] text-[#94A3B8] uppercase">
-                    Katalog Motor Kustom
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                  BIKES
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
               </Link>
 
               <Link
                 href="/journal"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-white/5 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
               >
-                <div>
-                  <span className="font-serif-editorial text-xl font-bold tracking-wider text-white group-hover:text-[#C5AA00] transition-colors block">
-                    JURNAL
-                  </span>
-                  <span className="text-[10px] tracking-[0.18em] text-[#94A3B8] uppercase">
-                    Catatan Perjalanan
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                  JOURNAL
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
               </Link>
 
               <Link
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-white/5 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
               >
-                <div>
-                  <span className="font-serif-editorial text-xl font-bold tracking-wider text-white group-hover:text-[#C5AA00] transition-colors block">
-                    TENTANG SAKALA
-                  </span>
-                  <span className="text-[10px] tracking-[0.18em] text-[#94A3B8] uppercase">
-                    Profil &amp; Nilai
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                  ABOUT
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
               </Link>
 
               <Link
                 href="/tracking"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-white/5 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
               >
-                <div>
-                  <span className="font-serif-editorial text-xl font-bold tracking-wider text-white group-hover:text-[#C5AA00] transition-colors block">
-                    LACAK PESANAN
-                  </span>
-                  <span className="text-[10px] tracking-[0.18em] text-[#94A3B8] uppercase">
-                    Status Pengiriman / Resi
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                  LACAK PESANAN
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
               </Link>
 
-              {/* Admin CMS (if admin or dev) */}
+              {/* Direct Account Option in the main menu */}
+              <Link
+                href={mounted && user ? "/account" : "/login"}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between py-3.5 px-3 rounded-xs border-b border-[#E5E2D9]/70 hover:bg-[#EAE7DC] text-[#1E293B] hover:text-[#C5AA00] transition-colors group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <User className="w-4 h-4 text-[#78716C] group-hover:text-[#C5AA00] transition-colors" />
+                  <span className="text-sm font-semibold tracking-[0.18em] uppercase group-hover:text-[#C5AA00] transition-colors">
+                    {mounted && user ? 'AKUN SAYA' : 'MASUK KE AKUN'}
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#C5AA00] group-hover:translate-x-1 transition-all" />
+              </Link>
+
+              {/* Admin CMS Portal (if admin) */}
               {showAdminLink && (
                 <Link
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between py-3.5 px-3 rounded-xs bg-[#C5AA00]/15 border border-[#C5AA00] hover:bg-[#C5AA00]/25 transition-colors mt-2"
+                  className="flex items-center justify-between py-3.5 px-3 rounded-xs bg-[#C5AA00]/15 border border-[#C5AA00] hover:bg-[#C5AA00]/25 text-[#070F18] transition-colors mt-3"
                 >
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-[#C5AA00]" />
-                    <span className="text-xs font-bold tracking-[0.16em] text-[#C5AA00] uppercase">
-                      ADMIN CMS PORTAL
+                    <Shield className="w-4 h-4 text-[#070F18]" />
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase">
+                      CMS PORTAL
                     </span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#C5AA00]" />
+                  <ChevronRight className="w-4 h-4 text-[#070F18]" />
                 </Link>
               )}
             </div>
 
-            {/* Mobile Footer Area */}
-            <div className="p-6 border-t border-white/10 bg-black/40">
+            {/* Mobile Footer / Account Action Area */}
+            <div className="p-6 border-t border-[#E5E2D9] bg-[#EAE7DC]/60">
               {mounted && user ? (
                 <Link
                   href="/account"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-3 rounded-xs bg-white/5 border border-white/10 hover:border-[#C5AA00] transition-colors mb-4"
+                  className="flex items-center justify-between p-3.5 rounded-xs bg-white border border-[#D8D4C7] hover:border-[#070F18] transition-colors mb-3 shadow-2xs"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C5AA00]/70 flex-shrink-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-[#C5AA00]/70 flex-shrink-0">
                       <Image
                         src={user.user_metadata?.avatar_url || '/assets/avatar_user.png'}
                         alt="Member Avatar"
-                        width={32}
-                        height={32}
+                        width={36}
+                        height={36}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-white block">
+                      <span className="text-xs font-bold text-[#070F18] block leading-tight">
                         {user.user_metadata?.full_name || 'Anggota Sakala'}
                       </span>
-                      <span className="text-[10px] text-[#94A3B8] block truncate max-w-[180px]">
+                      <span className="text-[10px] text-[#64748B] block truncate max-w-[170px]">
                         {user.email}
                       </span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-[#C5AA00] tracking-wider uppercase">
+                  <span className="text-[10px] font-bold text-[#070F18] tracking-wider uppercase border border-[#070F18] px-2.5 py-1 rounded-xs bg-[#FAF9F5]">
                     PROFIL
                   </span>
                 </Link>
@@ -351,15 +341,15 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-3 bg-[#C5AA00] hover:bg-[#B39900] text-black text-xs font-bold tracking-[0.2em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 mb-4 btn-tactile"
+                  className="w-full py-3.5 bg-[#070F18] hover:bg-[#0047AB] text-white text-xs font-bold tracking-[0.18em] uppercase rounded-xs transition-colors flex items-center justify-center gap-2 mb-3 btn-tactile shadow-xs"
                 >
                   <User className="w-4 h-4" />
-                  <span>SIGN IN</span>
+                  <span>MASUK KE AKUN (SIGN IN)</span>
                 </Link>
               )}
 
-              <div className="text-center text-[9px] tracking-[0.25em] text-[#64748B] uppercase">
-                BANDUNG, JAWA BARAT
+              <div className="text-center text-[9px] tracking-[0.25em] text-[#78716C] uppercase font-medium">
+                SAKALA MOTORCYCLE CLUB — BANDUNG
               </div>
             </div>
           </div>
