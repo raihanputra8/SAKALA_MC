@@ -241,33 +241,6 @@ export default function JournalDetailClient({
             </div>
           )}
 
-          {/* Author info card */}
-          <div className="my-14 p-6 sm:p-8 bg-white border border-[#E5E2D9] rounded-xs shadow-xs">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              <div className="w-16 h-16 rounded-full bg-[#070F18] text-[#C5AA00] flex items-center justify-center font-serif-editorial text-2xl font-bold border-2 border-[#C5AA00] flex-shrink-0 shadow-md">
-                {post.author.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="space-y-1.5 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-[#0047AB] uppercase">
-                    PENULIS CATATAN
-                  </span>
-                  <span>•</span>
-                  <span className="text-[10px] text-emerald-600 font-bold uppercase">
-                    SAKALA BANDUNG
-                  </span>
-                </div>
-                <h4 className="font-serif-editorial text-xl font-bold text-[#070F18]">
-                  {post.author}
-                </h4>
-                <p className="text-xs text-[#64748B] leading-relaxed">
-                  Anggota dan pencatat perjalanan resmi Sakala Motorcycle Club
-                  Bandung. Mendokumentasikan ekspedisi, rute pegunungan, dan
-                  budaya kustom roda dua.
-                </p>
-              </div>
-            </div>
-          </div>
         </article>
 
         {/* Read Next (Editorial Recirculation) */}

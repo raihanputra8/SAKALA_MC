@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Quote, Sparkles, AlertCircle, Compass } from 'lucide-react';
+import { Quote, Sparkles, AlertCircle } from 'lucide-react';
 
 interface RichStoryRendererProps {
   content?: string;
@@ -23,17 +23,7 @@ interface RichStoryRendererProps {
  */
 export default function RichStoryRenderer({ content, className = '' }: RichStoryRendererProps) {
   if (!content || !content.trim()) {
-    return (
-      <div className="py-12 px-6 text-center bg-[#FAF9F5] border border-dashed border-[#E5E2D9] rounded-md my-8">
-        <Compass className="w-8 h-8 text-[#94A3B8] mx-auto mb-3 opacity-60" />
-        <p className="text-sm font-serif-editorial text-[#070F18] font-bold">
-          Belum ada cerita yang ditulis.
-        </p>
-        <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
-          Gunakan tombol Edit Konten di CMS untuk menulis cerita perjalanan dan catatan garasi ini.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   // Parse lines into structured blocks
