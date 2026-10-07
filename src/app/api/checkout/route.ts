@@ -9,6 +9,7 @@ const AUTHORITATIVE_COURIER_RATES: Record<string, number> = {
   jne_reg: 20000,
   sicepat_best: 30000,
   jnt: 22000,
+  cargo: 45000,
 };
 const DEFAULT_SHIPPING_FEE = 35000;
 const MAX_QUANTITY_PER_ITEM = 10;

@@ -191,6 +191,7 @@ BEGIN
     WHEN 'jne_reg' THEN 20000
     WHEN 'sicepat_best' THEN 30000
     WHEN 'jnt' THEN 22000
+    WHEN 'cargo' THEN 45000
     ELSE 35000
   END;
 

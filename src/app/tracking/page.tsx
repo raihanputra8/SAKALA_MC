@@ -21,6 +21,12 @@ export default function TrackingPage() {
   const [manifestId, setManifestId] = useState('');
   const [searchedId, setSearchedId] = useState('');
   const [order, setOrder] = useState<Order | null>(null);
+  const [biteshipTracking, setBiteshipTracking] = useState<{
+    waybill_id: string;
+    courier: string;
+    status: string;
+    history: Array<{ note: string; updated_at: string }>;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -32,9 +38,24 @@ export default function TrackingPage() {
     try {
       const result = await getOrderById(id.trim());
       setOrder(result);
+
+      // Also attempt real-time waybill query from Biteship
+      try {
+        const courierCode = result?.courier?.split('_')[0] || 'jne';
+        const res = await fetch(`/api/shipping/tracking?waybill_id=${encodeURIComponent(id.trim())}&courier=${encodeURIComponent(courierCode)}`);
+        const bData = await res.json();
+        if (bData.success && bData.tracking) {
+          setBiteshipTracking(bData.tracking);
+        } else {
+          setBiteshipTracking(null);
+        }
+      } catch {
+        setBiteshipTracking(null);
+      }
     } catch (err) {
       console.error('Failed to load tracking data:', err);
       setOrder(null);
+      setBiteshipTracking(null);
     } finally {
       setLoading(false);
     }
@@ -198,15 +219,72 @@ export default function TrackingPage() {
                     </div>
                   </div>
                 )}
+                {/* Biteship Live Courier Checkpoints */}
+                {biteshipTracking && biteshipTracking.history && biteshipTracking.history.length > 0 && (
+                  <div className="pt-6 border-t border-[#E5E2D9] mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-serif-editorial text-base font-bold text-[#070F18]">
+                        RIWAYAT PERJALANAN KURIR (LIVE BITESHIP)
+                      </h3>
+                      <span className="text-[10px] font-bold tracking-wider text-[#0047AB] uppercase bg-blue-50 px-2.5 py-1 rounded-xs border border-blue-200">
+                        {biteshipTracking.courier.toUpperCase()} • {biteshipTracking.status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {biteshipTracking.history.map((event, idx) => (
+                        <div key={idx} className="flex items-start gap-3 text-xs">
+                          <div className="w-2 h-2 rounded-full bg-[#0047AB] mt-1.5 shrink-0" />
+                          <div className="flex-1">
+                            <p className="font-bold text-[#070F18]">{event.note}</p>
+                            <span className="text-[10px] text-[#64748B]">
+                              {new Date(event.updated_at).toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : biteshipTracking ? (
+              <div className="bg-white border border-[#E5E2D9] rounded-xs p-6 sm:p-8 shadow-sm mb-10">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E5E2D9]">
+                  <div>
+                    <span className="text-[9px] font-bold tracking-[0.2em] text-[#64748B] uppercase block">
+                      NO. RESI KURIR
+                    </span>
+                    <span className="font-mono text-base font-bold text-[#070F18]">
+                      {biteshipTracking.waybill_id}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold px-3 py-1 bg-blue-50 text-[#0047AB] border border-blue-200 rounded-xs uppercase">
+                    {biteshipTracking.courier.toUpperCase()} • {biteshipTracking.status.toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {(biteshipTracking.history || []).map((event, idx) => (
+                    <div key={idx} className="flex items-start gap-3 text-xs">
+                      <div className="w-2 h-2 rounded-full bg-[#0047AB] mt-1.5 shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-bold text-[#070F18]">{event.note}</p>
+                        <span className="text-[10px] text-[#64748B]">
+                          {new Date(event.updated_at).toLocaleString('id-ID')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="bg-white border border-[#E5E2D9] rounded-xs p-8 text-center mb-10">
                 <AlertCircle className="w-8 h-8 text-[#64748B] mx-auto mb-3" />
                 <h3 className="font-serif-editorial text-lg font-bold text-[#070F18] mb-1">
-                  PESANAN TIDAK DITEMUKAN
+                  PESANAN / RESI TIDAK DITEMUKAN
                 </h3>
                 <p className="text-xs text-[#64748B] max-w-sm mx-auto">
-                  Nomor pesanan <span className="font-mono font-bold text-[#070F18]">{searchedId}</span> tidak tercatat di database kami. Pastikan nomor pesanan yang Anda masukkan sudah sesuai.
+                  Nomor pesanan atau resi <span className="font-mono font-bold text-[#070F18]">{searchedId}</span> tidak tercatat di database atau sistem kurir. Pastikan nomor yang Anda masukkan sudah sesuai.
                 </p>
               </div>
             )}

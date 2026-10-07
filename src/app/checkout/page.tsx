@@ -1,13 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Truck, CreditCard, Lock, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useCart } from '@/context/CartContext';
+
+interface CourierOption {
+  key: string;
+  name: string;
+  description: string;
+  price: number;
+  etd?: string;
+}
+
+const DEFAULT_COURIER_OPTIONS: CourierOption[] = [
+  { key: 'jne_yes', name: 'JNE YES (Next Day)', description: 'Pengiriman kilat 1 hari sampai', price: 35000, etd: '1 hari' },
+  { key: 'jne_reg', name: 'JNE Reguler', description: 'Layanan reguler hemat', price: 20000, etd: '2 - 3 hari' },
+  { key: 'sicepat_best', name: 'SiCepat BEST', description: 'Besok sampai tujuan', price: 30000, etd: '1 hari' },
+  { key: 'jnt', name: 'J&T Express EZ', description: 'Reguler ekspres cepat', price: 22000, etd: '2 - 3 hari' },
+  { key: 'cargo', name: 'J&T CARGO / Kargo Apparel', description: 'Paket kargo jaket & merchandise', price: 45000, etd: '3 - 5 hari' },
+];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,10 +40,46 @@ export default function CheckoutPage() {
     payment: 'bca_va',
   });
 
+  const [couriers, setCouriers] = useState<CourierOption[]>(DEFAULT_COURIER_OPTIONS);
+  const [loadingRates, setLoadingRates] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const shippingFee = 35000;
-  const grandTotal = totalIdr + (cart.length > 0 ? shippingFee : 0);
+  // Fetch dynamic authoritative rates from Biteship API
+  useEffect(() => {
+    let ignore = false;
+    async function fetchRates() {
+      if (!formData.postalCode || formData.postalCode.length < 3) return;
+      setLoadingRates(true);
+      try {
+        const res = await fetch('/api/shipping/rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            destination_postal_code: formData.postalCode,
+            destination_city: formData.city,
+            items: cart.map(i => ({ quantity: i.quantity })),
+          }),
+        });
+        const data = await res.json();
+        if (!ignore && data.success && Array.isArray(data.rates) && data.rates.length > 0) {
+          setCouriers(data.rates);
+          if (!data.rates.some((r: CourierOption) => r.key === formData.courier)) {
+            setFormData(prev => ({ ...prev, courier: data.rates[0].key }));
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to fetch shipping rates:', err);
+      } finally {
+        if (!ignore) setLoadingRates(false);
+      }
+    }
+    fetchRates();
+    return () => { ignore = true; };
+  }, [formData.postalCode, cart]);
+
+  const selectedCourierObj = couriers.find(c => c.key === formData.courier) || couriers[0];
+  const shippingFee = cart.length > 0 ? (selectedCourierObj?.price || 35000) : 0;
+  const grandTotal = totalIdr + shippingFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,55 +246,51 @@ export default function CheckoutPage() {
 
             {/* Courier Selection */}
             <div className="bg-white border border-[#E5E2D9] rounded-xs p-6 sm:p-8 shadow-xs">
-              <div className="flex items-center gap-2 mb-6 text-[#070F18]">
-                <Truck className="w-4 h-4 text-[#0047AB]" />
-                <h3 className="font-serif-editorial text-base font-bold uppercase tracking-wider">
-                  2. JASA PENGIRIMAN
-                </h3>
+              <div className="flex items-center justify-between mb-6 text-[#070F18]">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#0047AB]" />
+                  <h3 className="font-serif-editorial text-base font-bold uppercase tracking-wider">
+                    2. JASA PENGIRIMAN
+                  </h3>
+                </div>
+                {loadingRates && (
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#0047AB]">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Sinkronisasi tarif...</span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <label
-                  className={`p-4 border rounded-xs cursor-pointer flex flex-col justify-between transition-colors ${
-                    formData.courier === 'jne_yes'
-                      ? 'border-[#070F18] bg-[#070F18]/5'
-                      : 'border-[#E5E2D9] bg-white hover:border-[#070F18]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-[#070F18]">JNE YES (Next Day)</span>
-                    <input
-                      type="radio"
-                      name="courier"
-                      value="jne_yes"
-                      checked={formData.courier === 'jne_yes'}
-                      onChange={() => setFormData({ ...formData, courier: 'jne_yes' })}
-                    />
-                  </div>
-                  <span className="text-[10px] text-[#64748B]">Pengiriman kilat 1 hari</span>
-                  <span className="font-bold text-[#070F18] mt-2 block">Rp 35.000</span>
-                </label>
-
-                <label
-                  className={`p-4 border rounded-xs cursor-pointer flex flex-col justify-between transition-colors ${
-                    formData.courier === 'cargo'
-                      ? 'border-[#070F18] bg-[#070F18]/5'
-                      : 'border-[#E5E2D9] bg-white hover:border-[#070F18]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-[#070F18]">J&T CARGO</span>
-                    <input
-                      type="radio"
-                      name="courier"
-                      value="cargo"
-                      checked={formData.courier === 'cargo'}
-                      onChange={() => setFormData({ ...formData, courier: 'cargo' })}
-                    />
-                  </div>
-                  <span className="text-[10px] text-[#64748B]">Paket kargo reguler</span>
-                  <span className="font-bold text-[#070F18] mt-2 block">Rp 45.000</span>
-                </label>
+                {couriers.map((c) => (
+                  <label
+                    key={c.key}
+                    onClick={() => setFormData((prev) => ({ ...prev, courier: c.key }))}
+                    className={`p-4 border rounded-xs cursor-pointer flex flex-col justify-between transition-colors ${
+                      formData.courier === c.key
+                        ? 'border-[#070F18] bg-[#070F18]/5 shadow-xs'
+                        : 'border-[#E5E2D9] bg-white hover:border-[#070F18]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-[#070F18]">{c.name}</span>
+                      <input
+                        type="radio"
+                        name="courier"
+                        value={c.key}
+                        checked={formData.courier === c.key}
+                        onChange={() => setFormData((prev) => ({ ...prev, courier: c.key }))}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <span className="text-[10px] text-[#64748B]">
+                      {c.description} {c.etd ? `(${c.etd})` : ''}
+                    </span>
+                    <span className="font-bold text-[#070F18] mt-2 block">
+                      Rp {c.price.toLocaleString('id-ID')}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 
