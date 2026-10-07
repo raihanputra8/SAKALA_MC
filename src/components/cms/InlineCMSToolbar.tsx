@@ -14,10 +14,7 @@ export default function InlineCMSToolbar() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
-  const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-  if (!isAdmin && !isDev) return null;
+  if (!mounted || !isAdmin) return null;
 
   return (
     <>

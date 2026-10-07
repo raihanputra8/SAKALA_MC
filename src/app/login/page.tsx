@@ -13,6 +13,16 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get('error');
+      if (err) {
+        setAuthError(decodeURIComponent(err));
+      }
+    }
+  }, []);
+
   // If already logged in, show enter dashboard
   if (!loading && user) {
     return (

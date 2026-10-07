@@ -52,7 +52,7 @@ export default function SupplySection({ initialProducts }: { initialProducts: Pr
       : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase());
 
   return (
-    <section id="supply" className="bg-[#F5F4EF] py-12 sm:py-16 lg:py-24 border-b border-[#E5E2D9]">
+    <section id="supply" className="bg-gradient-to-b from-[#F5F4EF] via-[#FFFFFF] to-[#FAF9F5] py-14 sm:py-20 lg:py-28 border-b border-[#E5E2D9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header & Category Filters */}
         <ScrollReveal direction="up" delay={50} className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 gap-4">
@@ -102,7 +102,7 @@ export default function SupplySection({ initialProducts }: { initialProducts: Pr
                   <EditableWrapper
                     item={{ type: 'product', id: product.id, data: product as unknown as Record<string, unknown> }}
                   >
-                  <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs card-interactive flex flex-col justify-between group h-full hover:border-[#070F18]">
+                  <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs card-interactive flex flex-col justify-between group h-full hover:border-[#070F18] transition-all duration-300">
                     {/* Image Container */}
                     <div className="relative h-56 w-full bg-[#FAF9F5] p-5 flex items-center justify-center border-b border-[#E5E2D9] overflow-hidden">
                       <div className="relative w-full h-full">

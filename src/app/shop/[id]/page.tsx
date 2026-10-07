@@ -2,16 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  ShieldCheck, 
-  Truck, 
-  RotateCcw, 
-  Ruler, 
-  Layers, 
-  Check 
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { getProductById, getProducts } from '@/lib/supabase/data';
@@ -35,40 +26,40 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 3);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070F18] text-white">
+    <div className="flex flex-col min-h-screen bg-[#FAF9F5] text-[#070F18]">
       <Navbar />
 
-      <main className="flex-1 py-12 max-w-7xl mx-auto px-6 lg:px-12 w-full">
+      <main className="flex-1 py-10 sm:py-14 max-w-7xl mx-auto px-6 lg:px-12 w-full">
         {/* Breadcrumb Header */}
-        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-gray-400 mb-8 pb-4 border-b border-white/10">
-          <Link href="/shop" className="hover:text-white flex items-center gap-1.5 transition-colors">
+        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#64748B] mb-8 pb-4 border-b border-[#E5E2D9]">
+          <Link href="/shop" className="hover:text-[#070F18] flex items-center gap-1.5 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Katalog Toko</span>
           </Link>
           <span>/</span>
-          <span className="text-[#F0D000]">{product.category}</span>
+          <span className="text-[#0047AB]">{product.category}</span>
           <span>/</span>
-          <span className="text-white">{product.name}</span>
+          <span className="text-[#070F18] font-bold">{product.name}</span>
         </div>
 
         {/* Client-Side Interactive Buying Experience */}
         <ProductDetailClient product={product} />
 
         {/* Related Apparel & Gear */}
-        <section className="mt-20 pt-12 border-t border-white/10">
+        <section className="mt-20 pt-12 border-t border-[#E5E2D9]">
           <div className="flex justify-between items-end mb-8">
             <div>
-              <span className="text-xs font-bold tracking-wider text-[#F0D000] uppercase block mb-1">
+              <span className="text-xs font-bold tracking-wider text-[#0047AB] uppercase block mb-1">
                 Koleksi Resmi
               </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
+              <h3 className="font-serif-editorial text-2xl sm:text-3xl font-black text-[#070F18]">
                 Produk Lainnya
               </h3>
             </div>
 
             <Link
               href="/shop"
-              className="text-xs font-bold tracking-wider uppercase text-gray-300 hover:text-[#F0D000] transition-colors flex items-center gap-1.5"
+              className="text-xs font-bold tracking-wider uppercase text-[#64748B] hover:text-[#0047AB] transition-colors flex items-center gap-1.5"
             >
               <span>Lihat Semua</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -80,9 +71,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <Link
                 key={item.id}
                 href={`/shop/${item.id}`}
-                className="group bg-[#0C1724] border border-white/10 rounded-xs overflow-hidden shadow-xs hover:border-[#F0D000] transition-colors flex flex-col justify-between"
+                className="group bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs hover:border-[#070F18] transition-all flex flex-col justify-between"
               >
-                <div className="relative h-64 w-full bg-[#070F18] overflow-hidden flex items-center justify-center p-6">
+                <div className="relative h-64 w-full bg-[#F5F4EF] overflow-hidden flex items-center justify-center p-6">
                   <Image
                     src={item.image_url}
                     alt={item.name}
@@ -92,17 +83,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </div>
 
                 <div className="p-6">
-                  <span className="text-[10px] font-bold tracking-wider text-[#F0D000] uppercase block mb-1">
+                  <span className="text-[10px] font-bold tracking-wider text-[#0047AB] uppercase block mb-1">
                     {item.category}
                   </span>
-                  <h4 className="text-base font-bold text-white group-hover:text-[#F0D000] transition-colors mb-2">
+                  <h4 className="font-serif-editorial text-base font-bold text-[#070F18] group-hover:text-[#0047AB] transition-colors mb-2">
                     {item.name}
                   </h4>
-                  <div className="flex justify-between items-center pt-3 border-t border-white/10 text-xs">
-                    <span className="font-bold text-white">
+                  <div className="flex justify-between items-center pt-3 border-t border-[#E5E2D9] text-xs">
+                    <span className="font-bold text-[#070F18]">
                       Rp {item.price_idr.toLocaleString('id-ID')}
                     </span>
-                    <span className="text-[11px] font-bold tracking-wider uppercase text-[#F0D000]">
+                    <span className="text-[11px] font-bold tracking-wider uppercase text-[#0047AB] group-hover:translate-x-0.5 transition-transform">
                       Lihat Produk →
                     </span>
                   </div>

@@ -19,6 +19,15 @@ export default function AuthCallbackPage() {
       try {
         const searchParams = new URLSearchParams(window.location.search);
         const code = searchParams.get('code');
+        const urlError = searchParams.get('error');
+        const errorDesc = searchParams.get('error_description');
+
+        if (urlError) {
+          console.error('OAuth error from provider:', urlError, errorDesc);
+          setStatusMessage(`Gagal verifikasi: ${errorDesc || urlError}`);
+          setTimeout(() => router.push(`/login?error=${encodeURIComponent(errorDesc || urlError)}`), 2500);
+          return;
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleSessionSync = async (sessionUser: any) => {
@@ -34,12 +43,22 @@ export default function AuthCallbackPage() {
               sessionUser.user_metadata?.picture || 
               '/assets/avatar_user.png';
 
+            // Check existing role so authorized roles (admin/founder/artisan) are preserved
+            const { data: existing } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', sessionUser.id)
+              .maybeSingle();
+
+            // Default role is strictly 'member', never auto-elevated based on email
+            const roleToSet = existing?.role || 'member';
+
             await supabase.from('profiles').upsert({
               id: sessionUser.id,
               full_name: fullName,
               email: sessionUser.email,
               avatar_url: avatarUrl,
-              role: 'member',
+              role: roleToSet,
             }, { onConflict: 'id' });
           } catch (syncErr) {
             console.warn('Profile sync in callback notice:', syncErr);
@@ -51,10 +70,12 @@ export default function AuthCallbackPage() {
           if (error) {
             console.error('Code exchange error:', error.message);
             setStatusMessage(`Authentication error: ${error.message}`);
-            setTimeout(() => router.push('/login?error=code_exchange_failed'), 2000);
+            setTimeout(() => router.push(`/login?error=${encodeURIComponent(error.message)}`), 2000);
             return;
           }
           if (data.session) {
+            const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+            document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax; ${isHttps ? 'Secure;' : ''}`;
             await handleSessionSync(data.session.user);
             setStatusMessage('Autentikasi berhasil. Mengalihkan ke akun...');
             setTimeout(() => router.push('/account'), 600);
@@ -73,6 +94,8 @@ export default function AuthCallbackPage() {
         }
 
         if (session) {
+          const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax; ${isHttps ? 'Secure;' : ''}`;
           await handleSessionSync(session.user);
           setStatusMessage('Identity verified. Entering the Circle...');
           setTimeout(() => router.push('/account'), 600);

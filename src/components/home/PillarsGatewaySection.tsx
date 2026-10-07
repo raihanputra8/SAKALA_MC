@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import bannerImg from '../../../public/assets/sakala_pillars_banner_v2.png';
+import bannerImg from '../../../public/assets/sakala_pillars_banner_hd.png';
 
 export default function PillarsGatewaySection() {
   return (
@@ -10,13 +10,14 @@ export default function PillarsGatewaySection() {
       aria-label="SAKALA Four Pillars Gateway"
       className="w-full relative bg-[#002243] overflow-hidden p-0 m-0 border-b border-[#C5AA00]/30"
     >
-      {/* Responsive full-width banner displaying the complete four pillars archival gateway on all screens */}
-      <div className="w-full relative aspect-[1024/575] overflow-hidden select-none">
+      {/* Responsive full-width banner displaying the complete four pillars archival gateway in True Ultra HD */}
+      <div className="w-full relative aspect-[16/9] overflow-hidden select-none">
         <Image
           src={bannerImg}
           alt="SAKALA Motorcycle Club — Four Pillars Archival Gateway"
           fill
           priority
+          quality={100}
           sizes="100vw"
           className="object-cover w-full h-full select-none"
         />

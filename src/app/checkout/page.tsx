@@ -8,7 +8,6 @@ import { ShieldCheck, Truck, CreditCard, Lock, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useCart } from '@/context/CartContext';
-import { createOrder } from '@/lib/supabase/data';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -37,33 +36,42 @@ export default function CheckoutPage() {
       return;
     }
     setSubmitting(true);
-    
-    const orderId = 'SKL-' + Math.floor(100000 + Math.random() * 900000);
-    const orderPayload = {
-      id: orderId,
-      customer_name: formData.fullName,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      shipping_address: formData.address,
-      city: formData.city,
-      postal_code: formData.postalCode,
-      courier: formData.courier,
-      payment_method: formData.payment,
-      items: cart,
-      subtotal_idr: totalIdr,
-      shipping_fee_idr: shippingFee,
-      total_idr: grandTotal,
-      status: 'pending' as const,
-    };
 
     try {
-      await createOrder(orderPayload);
-    } catch (err) {
-      console.warn('Could not persist to Supabase orders table (check if table exists):', err);
-    }
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: formData.fullName,
+          customer_email: formData.email,
+          customer_phone: formData.phone,
+          shipping_address: formData.address,
+          city: formData.city,
+          postal_code: formData.postalCode,
+          courier: formData.courier,
+          payment_method: formData.payment,
+          items: cart.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+            size: item.size,
+          })),
+        }),
+      });
 
-    clearCart();
-    router.push(`/checkout/confirmation?orderId=${orderId}&total=${grandTotal}`);
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.error || 'Gagal memproses pesanan. Silakan periksa kembali data Anda.');
+        setSubmitting(false);
+        return;
+      }
+
+      clearCart();
+      router.push(`/checkout/confirmation?orderId=${encodeURIComponent(data.orderId)}&total=${data.totalIdr}`);
+    } catch (err) {
+      console.error('Checkout processing error:', err);
+      alert('Terjadi gangguan koneksi saat memproses pesanan.');
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -111,7 +119,7 @@ export default function CheckoutPage() {
                     required
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Contoh: Raihan Putra"
+                    placeholder="Nama lengkap Anda"
                     className="w-full bg-[#FAF9F5] border border-[#E5E2D9] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#070F18]"
                   />
                 </div>

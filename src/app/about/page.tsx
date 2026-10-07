@@ -132,8 +132,8 @@ export default function AboutPage() {
               </EditableWrapper>
             </div>
 
-            {/* Right Column: Full Graphic / Picture Display Card (No text underneath) */}
-            <div className="lg:col-span-5">
+            {/* Right Column: Clean Emblem Graphic (No black background box) */}
+            <div className="lg:col-span-5 flex items-center justify-center">
               <EditableWrapper
                 item={{
                   type: 'content',
@@ -141,16 +141,15 @@ export default function AboutPage() {
                   data: heroImgContent,
                 }}
               >
-                <div className="relative w-full h-[460px] sm:h-[520px] lg:h-[560px] bg-[#070F18] border border-[#1E293B] shadow-2xl rounded-sm overflow-hidden flex items-center justify-center p-6 sm:p-10 group">
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={heroImgContent.image_url || '/assets/sakala_emblem.png'}
-                      alt={heroImgContent.title || 'SAKALA Image'}
-                      fill
-                      className="object-contain drop-shadow-[0_20px_50px_rgba(240,208,0,0.28)] transition-transform duration-500 group-hover:scale-105"
-                      priority
-                    />
-                  </div>
+                <div className="relative w-full aspect-square max-w-[440px] flex items-center justify-center group p-4">
+                  <Image
+                    src={heroImgContent.image_url || '/assets/sakala_emblem.png'}
+                    alt={heroImgContent.title || 'SAKALA Image'}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="object-contain drop-shadow-[0_20px_35px_rgba(7,15,24,0.18)] transition-transform duration-500 group-hover:scale-105"
+                    priority
+                  />
                 </div>
               </EditableWrapper>
             </div>
@@ -167,8 +166,8 @@ export default function AboutPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-              {/* Left Column: Emblem */}
-              <div className="lg:col-span-5">
+              {/* Left Column: Clean Emblem (No black background box) */}
+              <div className="lg:col-span-5 flex items-center justify-center">
                 <EditableWrapper
                   item={{
                     type: 'content',
@@ -176,15 +175,14 @@ export default function AboutPage() {
                     data: originImgContent,
                   }}
                 >
-                  <div className="relative w-full h-[420px] sm:h-[480px] bg-[#070F18] border border-[#1E293B] shadow-xl rounded-sm overflow-hidden flex items-center justify-center p-6 sm:p-10 group">
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={originImgContent.image_url || '/assets/sakala_emblem.png'}
-                        alt={originImgContent.title || 'Simbol Sakala'}
-                        fill
-                        className="object-contain drop-shadow-[0_20px_45px_rgba(240,208,0,0.25)] transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
+                  <div className="relative w-full aspect-square max-w-[400px] flex items-center justify-center group p-4">
+                    <Image
+                      src={originImgContent.image_url || '/assets/sakala_emblem.png'}
+                      alt={originImgContent.title || 'Simbol Sakala'}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-contain drop-shadow-[0_20px_35px_rgba(7,15,24,0.18)] transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                 </EditableWrapper>
               </div>

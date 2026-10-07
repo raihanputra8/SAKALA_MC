@@ -5,7 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, X, Package, BookOpen, Wrench, ArrowRight } from 'lucide-react';
-import { mockProducts, mockBikes, mockJournalPosts } from '@/data/mockData';
+import { Product, Bike, JournalPost } from '@/types/database';
+import { getProducts, getBikes, getJournalPosts } from '@/lib/supabase/data';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -16,6 +17,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [bikes, setBikes] = useState<Bike[]>([]);
+  const [journalPosts, setJournalPosts] = useState<JournalPost[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      getProducts().then(setProducts);
+      getBikes().then(setBikes);
+      getJournalPosts().then(setJournalPosts);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,7 +57,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const q = query.trim().toLowerCase();
 
   const matchingProducts = q
-    ? mockProducts.filter(
+    ? products.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
@@ -54,7 +66,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     : [];
 
   const matchingBikes = q
-    ? mockBikes.filter(
+    ? bikes.filter(
         (b) =>
           b.title.toLowerCase().includes(q) ||
           b.make.toLowerCase().includes(q) ||
@@ -63,7 +75,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     : [];
 
   const matchingJournal = q
-    ? mockJournalPosts.filter(
+    ? journalPosts.filter(
         (j) =>
           j.title.toLowerCase().includes(q) ||
           j.excerpt.toLowerCase().includes(q) ||

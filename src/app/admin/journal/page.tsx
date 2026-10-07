@@ -14,6 +14,7 @@ import {
   deleteJournalPost,
 } from '@/lib/supabase/admin';
 import { JournalPost } from '@/types/database';
+import RichStoryEditor from '@/components/cms/RichStoryEditor';
 
 function slugify(text: string): string {
   return text
@@ -276,18 +277,23 @@ export default function AdminJournalPage() {
           />
         </div>
         <FormTextarea
-          label="Excerpt"
+          label="Excerpt (Ringkasan Pembuka)"
           required
           placeholder="Brief summary of the article..."
           value={form.excerpt}
           onChange={(e) => setForm({ ...form, excerpt: (e.target as HTMLTextAreaElement).value })}
         />
-        <FormTextarea
-          label="Content (Markdown supported)"
-          placeholder="Full article content..."
-          value={form.content}
-          onChange={(e) => setForm({ ...form, content: (e.target as HTMLTextAreaElement).value })}
-        />
+        <div>
+          <label className="block text-[10px] font-bold text-[#0047AB] uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Isi Cerita Lengkap (Powerful Editorial Story Editor)</span>
+            <span className="text-[#64748B] font-normal lowercase">dukungan penuh markdown, bab, kutipan, &amp; foto</span>
+          </label>
+          <RichStoryEditor
+            value={form.content}
+            onChange={(newContent) => setForm({ ...form, content: newContent })}
+            onUpdateReadTime={(readTime) => setForm({ ...form, read_time: readTime })}
+          />
+        </div>
         <ImageUploader
           label="Cover Image"
           value={form.cover_image_url}

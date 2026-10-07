@@ -40,7 +40,7 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
 
 
   return (
-    <section id="journal" className="bg-[#FAF9F5] py-12 sm:py-16 lg:py-24 border-b border-[#E5E2D9]">
+    <section id="journal" className="bg-gradient-to-b from-[#FAF9F5] via-[#FFFFFF] to-[#F5F4EF] py-14 sm:py-20 lg:py-28 border-b border-[#E5E2D9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Section Header */}
         <ScrollReveal direction="up" delay={50} className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 gap-4">
@@ -60,13 +60,13 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
             href="/journal"
             className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-[#070F18] hover:text-[#0047AB] transition-colors uppercase flex-shrink-0 group"
           >
-            <span>SEMUA ARTIKEL</span>
+            <span>SEMUA CATATAN</span>
             <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
           </Link>
         </ScrollReveal>
 
         {/* Journal Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Left: Featured Large Article */}
           {featured && (
             <ScrollReveal direction="up" delay={100} className="lg:col-span-7 flex flex-col">
@@ -74,8 +74,8 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
                 item={{ type: 'journal', id: featured.id, data: featured as unknown as Record<string, unknown> }}
               >
                 {isEditMode ? (
-                  <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between group hover:border-[#070F18] card-interactive h-full">
-                    <div className="relative h-64 sm:h-80 w-full bg-[#E5E2D9] overflow-hidden">
+                  <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between group hover:border-[#070F18] card-interactive h-full transition-all duration-300">
+                    <div className="relative h-72 sm:h-96 w-full bg-[#EFECE6] overflow-hidden">
                       <Image
                         src={featured.cover_image_url}
                         alt={featured.title}
@@ -83,28 +83,31 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
                         sizes="(max-width: 1024px) 100vw, 60vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-[#070F18]/90 text-white text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-xs backdrop-blur-xs">
+                          {featured.category}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-2 flex items-center gap-2">
-                          <span>{featured.category}</span>
-                          <span>•</span>
-                          <span className="text-[#64748B]">{featured.publish_date}</span>
+                        <div className="text-[10px] font-bold tracking-[0.2em] text-[#64748B] uppercase mb-2">
+                          {featured.publish_date}
                         </div>
 
-                        <h3 className="font-serif-editorial text-xl sm:text-2xl font-black text-[#070F18] leading-tight mb-3 group-hover:text-[#0047AB] transition-colors">
+                        <h3 className="font-serif-editorial text-2xl sm:text-3xl font-black text-[#070F18] leading-tight mb-3 group-hover:text-[#0047AB] transition-colors">
                           {featured.title}
                         </h3>
 
-                        <p className="text-xs text-[#475569] leading-relaxed mb-4 line-clamp-3">
+                        <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-4 line-clamp-3">
                           {featured.excerpt}
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-[#E5E2D9]">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
-                          <span>BACA ARTIKEL</span>
+                      <div className="pt-4 border-t border-[#E5E2D9]">
+                        <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
+                          <span>BACA CATATAN LENGKAP</span>
                           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-200" />
                         </span>
                       </div>
@@ -113,9 +116,9 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
                 ) : (
                   <Link
                     href={`/journal/${featured.slug}`}
-                    className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between group hover:border-[#070F18] card-interactive h-full"
+                    className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs flex flex-col justify-between group hover:border-[#070F18] card-interactive h-full transition-all duration-300"
                   >
-                    <div className="relative h-64 sm:h-80 w-full bg-[#E5E2D9] overflow-hidden">
+                    <div className="relative h-72 sm:h-96 w-full bg-[#EFECE6] overflow-hidden">
                       <Image
                         src={featured.cover_image_url}
                         alt={featured.title}
@@ -123,28 +126,31 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
                         sizes="(max-width: 1024px) 100vw, 60vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-[#070F18]/90 text-white text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-xs backdrop-blur-xs">
+                          {featured.category}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-2 flex items-center gap-2">
-                          <span>{featured.category}</span>
-                          <span>•</span>
-                          <span className="text-[#64748B]">{featured.publish_date}</span>
+                        <div className="text-[10px] font-bold tracking-[0.2em] text-[#64748B] uppercase mb-2">
+                          {featured.publish_date}
                         </div>
 
-                        <h3 className="font-serif-editorial text-xl sm:text-2xl font-black text-[#070F18] leading-tight mb-3 group-hover:text-[#0047AB] transition-colors">
+                        <h3 className="font-serif-editorial text-2xl sm:text-3xl font-black text-[#070F18] leading-tight mb-3 group-hover:text-[#0047AB] transition-colors">
                           {featured.title}
                         </h3>
 
-                        <p className="text-xs text-[#475569] leading-relaxed mb-4 line-clamp-3">
+                        <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-4 line-clamp-3">
                           {featured.excerpt}
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-[#E5E2D9]">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
-                          <span>BACA ARTIKEL</span>
+                      <div className="pt-4 border-t border-[#E5E2D9]">
+                        <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
+                          <span>BACA CATATAN LENGKAP</span>
                           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-200" />
                         </span>
                       </div>
@@ -156,63 +162,79 @@ export default function JournalSection({ posts: initialPosts }: { posts: Journal
           )}
 
           {/* Right: Side Articles */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          <div className="lg:col-span-5 flex flex-col gap-4 justify-between">
             {sideArticles.map((article, idx) => (
               <ScrollReveal key={article.id} direction="up" delay={160 + idx * 80} className="flex-1">
                 <EditableWrapper
                   item={{ type: 'journal', id: article.id, data: article as unknown as Record<string, unknown> }}
                 >
                   {isEditMode ? (
-                    <div className="bg-white border border-[#E5E2D9] rounded-xs p-5 shadow-xs hover:border-[#070F18] card-interactive flex-1 flex flex-col justify-between group h-full">
-                      <div>
-                        <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-1.5 flex items-center gap-2">
-                          <span>{article.category}</span>
-                          <span>•</span>
-                          <span className="text-[#64748B]">{article.publish_date}</span>
+                    <div className="bg-white border border-[#E5E2D9] rounded-xs p-4 sm:p-5 shadow-xs hover:border-[#070F18] card-interactive flex gap-4 items-center group h-full transition-all duration-300">
+                      {article.cover_image_url && (
+                        <div className="relative w-24 sm:w-28 h-24 sm:h-28 shrink-0 bg-[#EFECE6] rounded-xs overflow-hidden">
+                          <Image
+                            src={article.cover_image_url}
+                            alt={article.title}
+                            fill
+                            sizes="120px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
-
-                        <h4 className="font-serif-editorial text-base sm:text-lg font-bold text-[#070F18] leading-snug mb-2 group-hover:text-[#0047AB] transition-colors">
-                          {article.title}
-                        </h4>
-
-                        <p className="text-xs text-[#64748B] leading-relaxed mb-3 line-clamp-2">
-                          {article.excerpt}
-                        </p>
-                      </div>
-
-                      <div className="pt-2.5 border-t border-[#E5E2D9]">
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
-                          <span>READ ARTICLE</span>
-                          <ArrowRight className="w-3 h-3 group-hover:translate-x-1.5 transition-transform duration-200" />
-                        </span>
+                      )}
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-1">
+                            {article.category} • <span className="text-[#64748B]">{article.publish_date}</span>
+                          </div>
+                          <h4 className="font-serif-editorial text-sm sm:text-base font-bold text-[#070F18] leading-snug mb-1.5 group-hover:text-[#0047AB] transition-colors line-clamp-2">
+                            {article.title}
+                          </h4>
+                          <p className="text-xs text-[#64748B] leading-relaxed line-clamp-2">
+                            {article.excerpt}
+                          </p>
+                        </div>
+                        <div className="pt-2 mt-2 border-t border-[#F1EFEA]">
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
+                            <span>BACA</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <Link
                       href={`/journal/${article.slug}`}
-                      className="bg-white border border-[#E5E2D9] rounded-xs p-5 shadow-xs hover:border-[#070F18] card-interactive flex-1 flex flex-col justify-between group h-full"
+                      className="bg-white border border-[#E5E2D9] rounded-xs p-4 sm:p-5 shadow-xs hover:border-[#070F18] card-interactive flex gap-4 items-center group h-full transition-all duration-300"
                     >
-                      <div>
-                        <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-1.5 flex items-center gap-2">
-                          <span>{article.category}</span>
-                          <span>•</span>
-                          <span className="text-[#64748B]">{article.publish_date}</span>
+                      {article.cover_image_url && (
+                        <div className="relative w-24 sm:w-28 h-24 sm:h-28 shrink-0 bg-[#EFECE6] rounded-xs overflow-hidden">
+                          <Image
+                            src={article.cover_image_url}
+                            alt={article.title}
+                            fill
+                            sizes="120px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
-
-                        <h4 className="font-serif-editorial text-base sm:text-lg font-bold text-[#070F18] leading-snug mb-2 group-hover:text-[#0047AB] transition-colors">
-                          {article.title}
-                        </h4>
-
-                        <p className="text-xs text-[#64748B] leading-relaxed mb-3 line-clamp-2">
-                          {article.excerpt}
-                        </p>
-                      </div>
-
-                      <div className="pt-2.5 border-t border-[#E5E2D9]">
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
-                          <span>READ ARTICLE</span>
-                          <ArrowRight className="w-3 h-3 group-hover:translate-x-1.5 transition-transform duration-200" />
-                        </span>
+                      )}
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="text-[9px] font-bold tracking-[0.2em] text-[#0047AB] uppercase mb-1">
+                            {article.category} • <span className="text-[#64748B]">{article.publish_date}</span>
+                          </div>
+                          <h4 className="font-serif-editorial text-sm sm:text-base font-bold text-[#070F18] leading-snug mb-1.5 group-hover:text-[#0047AB] transition-colors line-clamp-2">
+                            {article.title}
+                          </h4>
+                          <p className="text-xs text-[#64748B] leading-relaxed line-clamp-2">
+                            {article.excerpt}
+                          </p>
+                        </div>
+                        <div className="pt-2 mt-2 border-t border-[#F1EFEA]">
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.16em] text-[#070F18] group-hover:text-[#0047AB] uppercase transition-colors">
+                            <span>BACA</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   )}

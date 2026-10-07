@@ -10,6 +10,7 @@ import {
   MapPin, 
   Clock, 
   ShieldCheck, 
+  Shield,
   ExternalLink, 
   Printer, 
   Plus, 
@@ -27,7 +28,7 @@ import { Order, Profile, Bike } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 
 export default function AccountPage() {
-  const { user, signOut, loading: authLoading, isMockUser } = useAuth();
+  const { user, signOut, loading: authLoading, isMockUser, isAdmin, userRole } = useAuth();
   const [activeTab, setActiveTab] = useState<'orders' | 'garage' | 'settings'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -57,21 +58,35 @@ export default function AccountPage() {
 
   useEffect(() => {
     async function loadData() {
-      try {
-        const [fetchedOrders, fetchedProfile, fetchedBikes] = await Promise.all([
-          getOrders(),
-          getUserProfile(),
-          getBikes(),
-        ]);
-        setOrders(fetchedOrders);
-        setProfile(fetchedProfile);
-        setBikes(fetchedBikes);
+      // If user is completely signed out, clear all data immediately
+      if (!user && !isMockUser) {
+        setOrders([]);
+        setProfile(null);
+        setBikes([]);
+        setLoading(false);
+        return;
+      }
 
-        if (fetchedProfile || user) {
+      try {
+        if (isMockUser) {
+          setOrders([]);
+          setProfile(null);
+          const fetchedBikes = await getBikes();
+          setBikes(fetchedBikes);
+        } else if (user) {
+          const [fetchedOrders, fetchedProfile, fetchedBikes] = await Promise.all([
+            getOrders(user.email || undefined),
+            getUserProfile(user.id),
+            getBikes(),
+          ]);
+          setOrders(fetchedOrders);
+          setProfile(fetchedProfile);
+          setBikes(fetchedBikes);
+
           setAddressData((prev) => ({
             ...prev,
-            fullName: user?.user_metadata?.full_name || fetchedProfile?.full_name || '',
-            email: user?.email || fetchedProfile?.email || '',
+            fullName: user.user_metadata?.full_name || fetchedProfile?.full_name || '',
+            email: user.email || fetchedProfile?.email || '',
             phone: '',
           }));
         }
@@ -82,7 +97,7 @@ export default function AccountPage() {
       }
     }
     loadData();
-  }, [user]);
+  }, [user, isMockUser]);
 
   const handleSaveAddress = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +126,70 @@ export default function AccountPage() {
     setShowRegisterModal(false);
     setNewBikeData({ title: '', make: '', model: '', year: '1980', plate: '' });
   };
+
+  // If auth is loading, show minimal spinner
+  if (authLoading || (loading && (user || isMockUser))) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#FAF9F5] text-[#070F18]">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-2 border-[#C5AA00] border-t-transparent rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // If signed out, show clean login required screen
+  if (!user && !isMockUser) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#FAF9F5] text-[#070F18]">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center p-6 sm:p-12">
+          <div className="max-w-md w-full bg-white border border-[#E5E2D9] rounded-xs p-8 sm:p-10 shadow-xl text-center">
+            <div className="relative w-20 h-20 mx-auto mb-6 drop-shadow-[0_8px_20px_rgba(197,170,0,0.25)]">
+              <Image
+                src="/assets/cakra_rahayu_kencana.png"
+                alt="Cakra Rahayu Kencana"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+
+            <span className="text-[10px] font-bold tracking-[0.25em] text-[#0047AB] uppercase mb-2 block">
+              PORTAL ANGGOTA SAKALA
+            </span>
+
+            <h1 className="font-serif-editorial text-2xl sm:text-3xl font-black text-[#070F18] mb-3">
+              ANDA TELAH KELUAR
+            </h1>
+
+            <p className="text-xs text-[#64748B] leading-relaxed mb-8 max-w-sm mx-auto font-light">
+              Anda tidak sedang terhubung ke akun manapun. Silakan masuk dengan akun Google untuk melihat kartu anggota, riwayat pesanan, dan motor Anda di garasi.
+            </p>
+
+            <div className="space-y-3">
+              <Link
+                href="/login"
+                className="w-full bg-[#070F18] hover:bg-[#0047AB] text-white text-xs font-bold tracking-[0.18em] uppercase py-3.5 px-6 rounded-xs transition-all flex items-center justify-center gap-2 shadow-md btn-tactile block"
+              >
+                <span>MASUK DENGAN GOOGLE →</span>
+              </Link>
+
+              <Link
+                href="/"
+                className="w-full bg-[#FAF9F5] hover:bg-[#E5E2D9] text-[#070F18] text-xs font-bold tracking-[0.16em] uppercase py-3 px-6 rounded-xs transition-colors border border-[#E5E2D9] block"
+              >
+                KEMBALI KE BERANDA
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FAF9F5] text-[#070F18]">
@@ -180,7 +259,7 @@ export default function AccountPage() {
                 </div>
 
                 <h1 className="font-serif-editorial text-2xl sm:text-4xl font-black text-[#070F18] tracking-tight">
-                  {user?.user_metadata?.full_name || profile?.full_name || 'Raihan Putra'}
+                  {user?.user_metadata?.full_name || profile?.full_name || 'Anggota Sakala'}
                 </h1>
 
                 <p className="text-xs text-[#64748B] font-medium">
@@ -234,6 +313,42 @@ export default function AccountPage() {
             </div>
           </div>
         </section>
+
+        {/* Admin CMS Access Bar */}
+        <div className="mb-8 p-4 bg-[#070F18] border border-[#C5AA00]/40 rounded-xs text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#C5AA00]/20 border border-[#C5AA00] flex items-center justify-center shrink-0">
+              <Shield className="w-5 h-5 text-[#C5AA00]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-[#C5AA00] uppercase">
+                  STATUS AKSES: {isAdmin ? 'ADMINISTRATOR / PENGRAJIN' : 'ANGGOTA (MEMBER)'}
+                </span>
+                <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${isAdmin ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 text-white/70'}`}>
+                  {isAdmin ? 'CMS AKTIF' : 'MODE BACA'}
+                </span>
+              </div>
+              <p className="text-xs text-[#94A3B8] mt-0.5">
+                {isAdmin
+                  ? 'Akun Anda memiliki izin penuh untuk mengedit konten website, motor, merchandise, dan jurnal.'
+                  : 'Status keanggotaan terverifikasi pada jaringan SAKALA Motorcycle Club.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="bg-[#C5AA00] hover:bg-[#D4B800] text-black text-xs font-bold tracking-[0.16em] uppercase px-5 py-2.5 rounded-xs flex items-center gap-2 transition-all shadow-md btn-tactile"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>BUKA PORTAL ADMIN CMS →</span>
+              </Link>
+            )}
+          </div>
+        </div>
 
         {/* Tab Navigation */}
         <div className="flex border-b border-[#E5E2D9] mb-8 gap-8 text-xs font-bold tracking-[0.18em] uppercase">

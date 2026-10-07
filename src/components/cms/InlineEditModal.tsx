@@ -9,6 +9,7 @@ import { updateJournalPost, deleteJournalPost } from '@/lib/supabase/admin';
 import { updateSiteContent, uploadImage } from '@/lib/supabase/admin';
 import { Bike, Product, JournalPost } from '@/types/database';
 import ImageCropperModal from './ImageCropperModal';
+import RichStoryEditor from './RichStoryEditor';
 
 export default function InlineEditModal() {
   const { editingItem, setEditingItem, triggerRefresh, showToast, saveContent } = useInlineCMS();
@@ -206,7 +207,7 @@ export default function InlineEditModal() {
 
       {/* Modal Dialog Card */}
       <div 
-        className="relative bg-white border border-[#E5E2D9] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col z-10 animate-fade-in-up"
+        className={`relative bg-white border border-[#E5E2D9] rounded-xl shadow-2xl w-full ${editingItem.type === 'journal' ? 'max-w-4xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col z-10 animate-fade-in-up`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header (Fixed Top) */}
@@ -504,19 +505,50 @@ export default function InlineEditModal() {
 
           {editingItem.type === 'journal' && (
             <>
-              <FieldInput label="Title" value={formData.title as string} onChange={(v) => updateField('title', v)} />
+              <FieldInput label="Judul Catatan Perjalanan" value={formData.title as string} onChange={(v) => updateField('title', v)} />
               <div className="grid grid-cols-2 gap-3">
-                <FieldInput label="Slug" value={formData.slug as string} onChange={(v) => updateField('slug', v)} />
-                <FieldInput label="Category" value={formData.category as string} onChange={(v) => updateField('category', v)} />
+                <FieldInput label="Slug / URL Permalink" value={formData.slug as string} onChange={(v) => updateField('slug', v)} />
+                <FieldSelect
+                  label="Kategori"
+                  value={formData.category as string}
+                  onChange={(v) => updateField('category', v)}
+                  options={[
+                    { value: 'PERJALANAN', label: 'Perjalanan (Rides)' },
+                    { value: 'BENGKEL', label: 'Bengkel (Builds)' },
+                    { value: 'CERITA', label: 'Cerita (Brotherhood)' },
+                    { value: 'EXPEDITION DISPATCH', label: 'Expedition Dispatch' },
+                    { value: 'WORKSHOP MONOGRAPH', label: 'Workshop Monograph' },
+                    { value: 'BROTHERHOOD ARCHIVE', label: 'Brotherhood Archive' },
+                  ]}
+                />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <FieldInput label="Author" value={formData.author as string} onChange={(v) => updateField('author', v)} />
-                <FieldInput label="Read Time" value={formData.read_time as string} onChange={(v) => updateField('read_time', v)} />
+              <div className="grid grid-cols-3 gap-3">
+                <FieldInput label="Penulis" value={formData.author as string} onChange={(v) => updateField('author', v)} />
+                <FieldInput label="Fotografer (Opsional)" value={((formData.photographer as string) || '')} onChange={(v) => updateField('photographer', v)} />
+                <FieldInput label="Estimasi Waktu Baca" value={formData.read_time as string} onChange={(v) => updateField('read_time', v)} />
               </div>
-              <FieldInput label="Publish Date" value={formData.publish_date as string} onChange={(v) => updateField('publish_date', v)} />
-              <FieldTextarea label="Excerpt" value={formData.excerpt as string} onChange={(v) => updateField('excerpt', v)} />
-              <FieldTextarea label="Content" value={(formData.content || '') as string} onChange={(v) => updateField('content', v)} rows={8} />
-              <div className="flex items-center gap-2">
+              <FieldInput label="Tanggal Publikasi" value={formData.publish_date as string} onChange={(v) => updateField('publish_date', v)} placeholder="September 2024" />
+              <FieldTextarea 
+                label="Ringkasan / Excerpt (Tampil di preview & kutipan pembuka)" 
+                value={formData.excerpt as string} 
+                onChange={(v) => updateField('excerpt', v)} 
+                rows={3} 
+              />
+
+              {/* Powerful Rich Story Editor */}
+              <div>
+                <label className="block text-[10px] font-bold text-[#0047AB] uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span>ISI CERITA LENGKAP (POWERFUL EDITORIAL STORY EDITOR)</span>
+                  <span className="text-[#64748B] font-normal lowercase">dukungan penuh markdown, kutipan, bab, &amp; foto</span>
+                </label>
+                <RichStoryEditor
+                  value={((formData.content || '') as string)}
+                  onChange={(newContent) => updateField('content', newContent)}
+                  onUpdateReadTime={(readTime) => updateField('read_time', readTime)}
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
                 <input
                   type="checkbox"
                   checked={Boolean(formData.featured)}
@@ -524,8 +556,8 @@ export default function InlineEditModal() {
                   id="featured-toggle"
                   className="w-4 h-4 accent-[#C5AA00]"
                 />
-                <label htmlFor="featured-toggle" className="text-xs font-semibold text-[#070F18]">
-                  Featured Article
+                <label htmlFor="featured-toggle" className="text-xs font-semibold text-[#070F18] cursor-pointer">
+                  Jadikan Artikel Unggulan (Featured Story)
                 </label>
               </div>
             </>

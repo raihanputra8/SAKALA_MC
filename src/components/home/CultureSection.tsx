@@ -237,7 +237,14 @@ export default function CultureSection() {
   }, []);
 
   return (
-    <section id="culture" className="bg-[#070F18] text-white py-16 sm:py-20 lg:py-24 border-b border-[#C5AA00]/20 relative overflow-hidden">
+    <section id="culture" className="relative bg-gradient-to-b from-[#060D15] via-[#0A1625] to-[#04080E] text-white py-16 sm:py-20 lg:py-24 border-b border-[#C5AA00]/20 overflow-hidden">
+      {/* Dimensional Ambient Glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-[#0047AB]/18 rounded-full blur-[140px]" />
+        <div className="absolute bottom-10 -right-20 w-[450px] h-[450px] bg-[#C5AA00]/10 rounded-full blur-[120px]" />
+        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-[#060D15] to-transparent" />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         
         {/* 1. DI TENGAH: LOGO SAKALA_MC.PNG */}

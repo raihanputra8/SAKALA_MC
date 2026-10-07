@@ -17,14 +17,19 @@ CREATE POLICY "Public Read Access on sakala-assets"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'sakala-assets');
 
--- Allow upload and update to sakala-assets bucket
-CREATE POLICY "Allow public upload to sakala-assets"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'sakala-assets');
+-- Admin-only upload, update, and delete (SEC-005)
+CREATE POLICY "Admin upload to sakala-assets"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'sakala-assets' AND public.is_admin());
 
-CREATE POLICY "Allow public update to sakala-assets"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'sakala-assets');
+CREATE POLICY "Admin update on sakala-assets"
+ON storage.objects FOR UPDATE TO authenticated
+USING (bucket_id = 'sakala-assets' AND public.is_admin())
+WITH CHECK (bucket_id = 'sakala-assets' AND public.is_admin());
+
+CREATE POLICY "Admin delete on sakala-assets"
+ON storage.objects FOR DELETE TO authenticated
+USING (bucket_id = 'sakala-assets' AND public.is_admin());
 
 -- 3. PROFILES TABLE (User accounts & artisans)
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -147,9 +152,12 @@ CREATE POLICY "Allow public read on site_content" ON public.site_content FOR SEL
 -- Public can subscribe to newsletter
 CREATE POLICY "Allow public insert on newsletter_subscribers" ON public.newsletter_subscribers FOR INSERT WITH CHECK (true);
 
--- Public can insert and read orders
-CREATE POLICY "Allow public insert on orders" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select on orders" ON public.orders FOR SELECT USING (true);
+-- Orders policies: SEC-004 restricted insert, authenticated customer/admin select
+CREATE POLICY "Admin insert orders" ON public.orders FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin select all orders" ON public.orders FOR SELECT TO authenticated USING (public.is_admin());
+CREATE POLICY "Customer select own orders" ON public.orders FOR SELECT TO authenticated USING (
+  (auth.jwt() ->> 'email') IS NOT NULL AND customer_email = (auth.jwt() ->> 'email')
+);
 
 -- Admin-only write policies for content tables
 CREATE POLICY "Admin insert products" ON public.products FOR INSERT WITH CHECK (public.is_admin());
@@ -175,6 +183,62 @@ CREATE POLICY "Allow public read on profiles" ON public.profiles FOR SELECT USIN
 CREATE POLICY "Allow authenticated insert own profile" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
 CREATE POLICY "Allow authenticated update own profile" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 CREATE POLICY "Admin update profiles" ON public.profiles FOR UPDATE USING (public.is_admin());
+
+-- Prevent unauthorized role changes on profiles
+CREATE OR REPLACE FUNCTION public.prevent_unauthorized_role_change()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role THEN
+    IF NOT public.is_admin() THEN
+      RAISE EXCEPTION 'Access Denied: Ordinary members cannot alter authorization role.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_prevent_role_change ON public.profiles;
+CREATE TRIGGER trg_prevent_role_change
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_unauthorized_role_change();
+
+-- Secure Guest Order Tracking RPC (no table dump, no phone/address PII)
+CREATE OR REPLACE FUNCTION public.get_order_tracking(p_order_id TEXT)
+RETURNS TABLE (
+  id TEXT,
+  status TEXT,
+  customer_name TEXT,
+  city TEXT,
+  courier TEXT,
+  total_idr NUMERIC,
+  items JSONB,
+  created_at TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    o.id,
+    o.status,
+    o.customer_name,
+    o.city,
+    o.courier,
+    o.total_idr,
+    o.items,
+    o.created_at
+  FROM public.orders o
+  WHERE o.id = p_order_id;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_order_tracking(TEXT) TO anon, authenticated;
 
 -- Auto-create profile on sign-up trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()

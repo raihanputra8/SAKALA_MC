@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
-type UserRole = 'member' | 'artisan' | 'founder' | 'admin';
+export type UserRole = 'member' | 'artisan' | 'founder' | 'admin';
 
 interface AuthContextType {
   user: User | null;
@@ -30,6 +30,16 @@ const AuthContext = createContext<AuthContextType>({
   userRole: 'member',
 });
 
+function syncAuthCookie(token?: string | null) {
+  if (typeof document === 'undefined') return;
+  if (token) {
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    document.cookie = `sb-access-token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax; ${isHttps ? 'Secure;' : ''}`;
+  } else {
+    document.cookie = 'sb-access-token=; path=/; max-age=0; SameSite=Lax';
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -38,11 +48,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('member');
 
-  // Auto-sync & fetch profile from Supabase
+  // Fetch profile strictly from trusted database source (public.profiles)
   async function syncAndFetchProfile(authUser: User) {
-    if (!supabase) return;
+    if (!supabase) {
+      setUserRole('member');
+      setIsAdmin(false);
+      return;
+    }
+
     try {
-      // 1. Check if profile already exists in public.profiles
+      // 1. Fetch authorized role from public.profiles
       const { data: existingProfile, error: fetchErr } = await supabase
         .from('profiles')
         .select('*')
@@ -52,11 +67,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (existingProfile && !fetchErr) {
         const role = (existingProfile.role as UserRole) || 'member';
         setUserRole(role);
-        setIsAdmin(role === 'admin');
+        setIsAdmin(role === 'admin' || role === 'artisan' || role === 'founder');
         return;
       }
 
-      // 2. If profile is missing in public.profiles, auto-insert/upsert it!
+      // 2. If profile is missing, initialize as standard 'member' (never admin)
+      const initialRole: UserRole = 'member';
       const fullName = 
         authUser.user_metadata?.full_name || 
         authUser.user_metadata?.name || 
@@ -74,17 +90,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           full_name: fullName,
           email: authUser.email,
           avatar_url: avatarUrl,
-          role: 'member',
+          role: initialRole,
         }, { onConflict: 'id' })
         .select()
         .maybeSingle();
 
       if (inserted && !insertErr) {
-        const role = (inserted.role as UserRole) || 'member';
+        const role = (inserted.role as UserRole) || initialRole;
         setUserRole(role);
-        setIsAdmin(role === 'admin');
+        setIsAdmin(role === 'admin' || role === 'artisan' || role === 'founder');
       } else {
-        setUserRole('member');
+        setUserRole(initialRole);
         setIsAdmin(false);
       }
     } catch (err) {
@@ -100,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
+        syncAuthCookie(session?.access_token ?? null);
         if (session?.user) {
           syncAndFetchProfile(session.user);
         }
@@ -111,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         (_event, session) => {
           setSession(session);
           setUser(session?.user ?? null);
+          syncAuthCookie(session?.access_token ?? null);
           setIsMockUser(false);
           if (session?.user) {
             syncAndFetchProfile(session.user);
@@ -135,11 +153,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const customSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '');
+    const origin = customSiteUrl || (typeof window !== 'undefined' ? window.location.origin : '');
+    const redirectUrl = `${origin}/auth/callback`;
+
+    console.log('[Auth] Initiating Google OAuth with redirectTo:', redirectUrl);
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -156,32 +179,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out
   const signOut = async () => {
     if (supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn('Sign out error:', err);
+      }
     }
     setUser(null);
     setSession(null);
+    syncAuthCookie(null);
     setIsMockUser(false);
     setIsAdmin(false);
     setUserRole('member');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   };
 
-  // Guest / Demo login for seamless development
+  // Guest / Demo login for previewing member account (strictly member role, no admin privilege)
   const signInAsGuest = () => {
     const mockGuestUser = {
-      id: 'usr-artisan-01',
+      id: 'usr-guest-01',
       app_metadata: {},
       user_metadata: {
-        full_name: 'Raihan Putra',
-        avatar_url: '/assets/avatar_user.png',
-        email: 'raihan@sakala.cc',
+        full_name: 'Tamu Sakala',
+        avatar_url: '',
+        email: 'tamu@sakala.cc',
       },
       aud: 'authenticated',
       created_at: new Date().toISOString(),
-      email: 'raihan@sakala.cc',
+      email: 'tamu@sakala.cc',
     } as unknown as User;
 
     setUser(mockGuestUser);
     setIsMockUser(true);
+    setUserRole('member');
+    setIsAdmin(false);
     setLoading(false);
   };
 

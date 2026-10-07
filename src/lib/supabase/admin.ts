@@ -247,18 +247,62 @@ export async function updateUserRole(id: string, role: Profile['role']): Promise
 }
 
 // ========================================
-// IMAGE UPLOAD
 // ========================================
+// IMAGE UPLOAD (SEC-010: SVG Stored XSS Hardening)
+// ========================================
+
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function uploadImage(file: File, folder: string = 'uploads'): Promise<string> {
   if (!supabase) throw new Error('Supabase not configured');
+  if (!file) throw new Error('File tidak valid.');
 
-  const ext = file.name.split('.').pop();
+  // 1. File size check
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('Ukuran file melebihi batas maksimal 5 MB.');
+  }
+
+  // 2. Extension validation (rejects .svg, .svgz, .html, etc.)
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
+    throw new Error(`Format file .${ext} tidak diizinkan. Hanya gambar raster (.jpg, .jpeg, .png, .webp) yang diperbolehkan.`);
+  }
+
+  // 3. MIME-type validation (rejects image/svg+xml, application/xml, etc.)
+  const mimeType = (file.type || '').toLowerCase();
+  if (!ALLOWED_MIME_TYPES.has(mimeType)) {
+    throw new Error(`Tipe MIME "${mimeType}" tidak diizinkan. Dokumen SVG dan format vektor dilarang demi keamanan.`);
+  }
+
+  // 4. Magic bytes / file signature verification
+  const buffer = await file.slice(0, 16).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+
+  // Reject any file starting with '<' (0x3C) e.g., <?xml, <svg, <html
+  if (bytes[0] === 0x3C) {
+    throw new Error('Isi file mengandung format XML/SVG dan ditolak demi keamanan (SEC-010 XSS Protection).');
+  }
+
+  // Verify valid raster magic bytes:
+  // JPEG: FF D8 FF
+  const isJpeg = bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF;
+  // PNG: 89 50 4E 47
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47;
+  // WebP: RIFF (52 49 46 46) ... WEBP (57 45 42 50 at offset 8)
+  const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+                 bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+
+  if (!isJpeg && !isPng && !isWebp) {
+    throw new Error('Isi biner file tidak valid untuk format gambar raster yang diizinkan (.jpg, .png, .webp).');
+  }
+
   const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   const { error } = await supabase.storage
     .from('sakala-assets')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: mimeType });
 
   if (error) throw new Error(error.message);
 

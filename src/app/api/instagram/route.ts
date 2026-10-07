@@ -20,8 +20,45 @@ interface CacheEntry {
 const oembedCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
+// Rate limiting configuration (SEC-011)
+// Note: In-memory rate limiting protects single-node / local runtimes.
+// For multi-region serverless deployments (e.g. Vercel), an external distributed
+// store such as Redis/Upstash is required for cross-instance enforcement.
+interface RateLimitRecord {
+  count: number;
+  resetAt: number;
+}
+const ipRateLimits = new Map<string, RateLimitRecord>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 30; // 30 requests per minute per IP
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = ipRateLimits.get(ip);
+
+  if (!record || record.resetAt <= now) {
+    ipRateLimits.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  record.count += 1;
+  return true;
+}
+
+// Bounded parameters
+const MAX_BATCH_URLS = 10;
+const MAX_URL_LENGTH = 500;
+const FETCH_TIMEOUT_MS = 5000;
+const MAX_CACHE_ENTRIES = 200;
+
 function validateAndExtractInstagramShortcode(rawUrl: string): { isValid: boolean; shortcode?: string; cleanPermalink?: string } {
-  if (!rawUrl || typeof rawUrl !== 'string') return { isValid: false };
+  if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.length > MAX_URL_LENGTH) {
+    return { isValid: false };
+  }
 
   try {
     const parsed = new URL(rawUrl.trim());
@@ -74,11 +111,14 @@ async function fetchOfficialOEmbed(permalink: string, shortcode: string): Promis
 
   try {
     const oembedEndpoint = `https://graph.facebook.com/${apiVersion}/instagram_oembed?url=${encodeURIComponent(permalink)}&access_token=${encodeURIComponent(accessToken)}`;
+    
+    // Explicit timeout protection: abort after 5 seconds to prevent hung connections
     const response = await fetch(oembedEndpoint, {
       next: { revalidate: 3600 },
       headers: {
         'Accept': 'application/json',
       },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -103,6 +143,12 @@ async function fetchOfficialOEmbed(permalink: string, shortcode: string): Promis
       has_official_media: Boolean(data.thumbnail_url),
     };
 
+    // Maintain bounded cache size
+    if (oembedCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = oembedCache.keys().next().value;
+      if (oldestKey) oembedCache.delete(oldestKey);
+    }
+
     // Cache the result
     oembedCache.set(shortcode, {
       data: result,
@@ -121,20 +167,41 @@ async function fetchOfficialOEmbed(permalink: string, shortcode: string): Promis
 }
 
 export async function GET(req: NextRequest) {
+  // 0. Rate limiting enforcement
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 
+                   req.headers.get('x-real-ip') || 
+                   '127.0.0.1';
+
+  if (!checkRateLimit(clientIp)) {
+    return NextResponse.json(
+      { error: 'Batas permintaan tercapai (Rate limit exceeded). Coba lagi dalam 1 menit.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const singleUrl = searchParams.get('url');
   const batchUrlsParam = searchParams.get('urls');
 
-  // 1. Batch mode: query multiple post URLs from CMS config at once
+  // 1. Batch mode: query multiple post URLs with strict array size capping
   if (batchUrlsParam) {
     try {
-      const urls: string[] = JSON.parse(batchUrlsParam);
+      const urls: unknown = JSON.parse(batchUrlsParam);
       if (!Array.isArray(urls)) {
         return NextResponse.json({ error: 'urls parameter must be a JSON array of strings' }, { status: 400 });
       }
 
+      // SEC-011: Strict upper bound on batch size
+      if (urls.length > MAX_BATCH_URLS) {
+        return NextResponse.json(
+          { error: `Jumlah URL melebihi batas maksimal ${MAX_BATCH_URLS} per permintaan.` },
+          { status: 400 }
+        );
+      }
+
       const results: InstagramPostData[] = [];
       for (const url of urls) {
+        if (typeof url !== 'string' || url.length > MAX_URL_LENGTH) continue;
         const { isValid, shortcode, cleanPermalink } = validateAndExtractInstagramShortcode(url);
         if (isValid && shortcode && cleanPermalink) {
           const postData = await fetchOfficialOEmbed(cleanPermalink, shortcode);
@@ -154,6 +221,13 @@ export async function GET(req: NextRequest) {
   // 2. Single URL mode
   if (!singleUrl) {
     return NextResponse.json({ error: 'url or urls parameter is required' }, { status: 400 });
+  }
+
+  if (singleUrl.length > MAX_URL_LENGTH) {
+    return NextResponse.json(
+      { error: `Panjang URL melebihi batas maksimal ${MAX_URL_LENGTH} karakter.` },
+      { status: 400 }
+    );
   }
 
   const { isValid, shortcode, cleanPermalink } = validateAndExtractInstagramShortcode(singleUrl);

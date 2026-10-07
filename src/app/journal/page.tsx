@@ -18,12 +18,14 @@ import Footer from '@/components/layout/Footer';
 import { getJournalPosts } from '@/lib/supabase/data';
 import { JournalPost } from '@/types/database';
 import EditableWrapper from '@/components/cms/EditableWrapper';
+import { useInlineCMS } from '@/context/InlineCMSContext';
 
 export default function JournalIndexPage() {
   const [posts, setPosts] = useState<JournalPost[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const { refreshKey } = useInlineCMS();
 
   useEffect(() => {
     async function load() {
@@ -37,7 +39,7 @@ export default function JournalIndexPage() {
       }
     }
     load();
-  }, []);
+  }, [refreshKey]);
 
   const categories = [
     { id: 'all', label: 'ALL MONOGRAPHS' },

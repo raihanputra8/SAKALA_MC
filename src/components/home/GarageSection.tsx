@@ -36,7 +36,7 @@ export default function GarageSection({ bikes: initialBikes }: { bikes: Bike[] }
   }, [refreshKey, refetchBikes]);
 
   return (
-    <section id="garage" className="bg-[#FAF9F5] py-12 sm:py-16 lg:py-24 border-b border-[#E5E2D9]">
+    <section id="garage" className="bg-gradient-to-b from-[#FAF9F5] via-[#FFFFFF] to-[#F5F4EF] py-14 sm:py-20 lg:py-28 border-b border-[#E5E2D9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Section Header */}
         <ScrollReveal direction="up" delay={50} className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 gap-4">
@@ -74,7 +74,7 @@ export default function GarageSection({ bikes: initialBikes }: { bikes: Bike[] }
                 <EditableWrapper
                   item={{ type: 'bike', id: bike.id, data: bike as unknown as Record<string, unknown> }}
                 >
-                <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs card-interactive flex flex-col group h-full hover:border-[#070F18]">
+                <div className="bg-white border border-[#E5E2D9] rounded-xs overflow-hidden shadow-xs card-interactive flex flex-col group h-full hover:border-[#070F18] transition-all duration-300">
                   {/* Bike Image Container */}
                   <Link href={`/bikes/${bike.id}`} className="relative h-56 w-full bg-[#EFECE6] overflow-hidden border-b border-[#E5E2D9] block">
                     <Image

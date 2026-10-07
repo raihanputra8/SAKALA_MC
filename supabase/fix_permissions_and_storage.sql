@@ -52,15 +52,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Cek langsung email dari token login Google OAuth (pasti tembus untuk akun Anda)
-  IF (auth.jwt() ->> 'email') = 'raihanputrairawan8@gmail.com' THEN
-    RETURN TRUE;
-  END IF;
-
-  -- Cek role di tabel profiles
+  -- Strict verification against profiles.role for authenticated UID
   RETURN EXISTS (
     SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
+    WHERE id = auth.uid() 
+      AND role IN ('admin', 'founder', 'artisan')
   );
 END;
 $$;
@@ -120,16 +116,70 @@ CREATE POLICY "Admin insert site_content" ON public.site_content FOR INSERT WITH
 CREATE POLICY "Admin update site_content" ON public.site_content FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY "Admin delete site_content" ON public.site_content FOR DELETE USING (public.is_admin());
 
--- 9. POLICIES: ORDERS
+-- 9. POLICIES: ORDERS (REMEDIATED: SEC-003 PII LEAK FIXED)
 DROP POLICY IF EXISTS "Allow public insert on orders" ON public.orders;
 DROP POLICY IF EXISTS "Allow public select on orders" ON public.orders;
+DROP POLICY IF EXISTS "Admin select all orders" ON public.orders;
+DROP POLICY IF EXISTS "Customer select own orders" ON public.orders;
 DROP POLICY IF EXISTS "Admin update orders" ON public.orders;
 
-CREATE POLICY "Allow public insert on orders" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select on orders" ON public.orders FOR SELECT USING (true);
-CREATE POLICY "Admin update orders" ON public.orders FOR UPDATE USING (public.is_admin());
+-- 9a. Admin select all orders
+CREATE POLICY "Admin select all orders" 
+ON public.orders FOR SELECT TO authenticated 
+USING (public.is_admin());
 
--- 10. POLICIES: PROFILES
+-- 9b. Customer select only own orders
+CREATE POLICY "Customer select own orders" 
+ON public.orders FOR SELECT TO authenticated 
+USING (
+  (auth.jwt() ->> 'email') IS NOT NULL 
+  AND customer_email = (auth.jwt() ->> 'email')
+);
+
+-- 9c. Guest checkout INSERT (INSERT != SELECT)
+CREATE POLICY "Allow public insert on orders" 
+ON public.orders FOR INSERT TO public 
+WITH CHECK (true);
+
+-- 9d. Admin update orders
+CREATE POLICY "Admin update orders" 
+ON public.orders FOR UPDATE TO authenticated 
+USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- 9e. Secure Guest Order Tracking RPC (no table dump, no phone/address PII)
+CREATE OR REPLACE FUNCTION public.get_order_tracking(p_order_id TEXT)
+RETURNS TABLE (
+  id TEXT,
+  status TEXT,
+  customer_name TEXT,
+  city TEXT,
+  courier TEXT,
+  total_idr NUMERIC,
+  items JSONB,
+  created_at TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    o.id,
+    o.status,
+    o.customer_name,
+    o.city,
+    o.courier,
+    o.total_idr,
+    o.items,
+    o.created_at
+  FROM public.orders o
+  WHERE o.id = p_order_id;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_order_tracking(TEXT) TO anon, authenticated;
+
+-- 10. POLICIES & TRIGGERS: PROFILES (REMEDIATED: SEC-002 SELF-ESCALATION PREVENTED)
 DROP POLICY IF EXISTS "Allow public read on profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Allow authenticated insert own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Allow authenticated update own profile" ON public.profiles;
@@ -139,6 +189,54 @@ CREATE POLICY "Allow public read on profiles" ON public.profiles FOR SELECT USIN
 CREATE POLICY "Allow authenticated insert own profile" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
 CREATE POLICY "Allow authenticated update own profile" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 CREATE POLICY "Admin update profiles" ON public.profiles FOR UPDATE USING (public.is_admin());
+
+-- Database Triggers to prevent unauthorized role escalation
+CREATE OR REPLACE FUNCTION public.prevent_unauthorized_role_change()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role THEN
+    IF NOT public.is_admin() THEN
+      RAISE EXCEPTION 'Access Denied: Ordinary members cannot alter authorization role.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_prevent_role_change ON public.profiles;
+CREATE TRIGGER trg_prevent_role_change
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_unauthorized_role_change();
+
+CREATE OR REPLACE FUNCTION public.enforce_profile_insert_role()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS NOT NULL AND NEW.role != 'member' THEN
+    IF NOT public.is_admin() THEN
+      NEW.role := 'member';
+    END IF;
+  END IF;
+  IF NEW.role IS NULL THEN
+    NEW.role := 'member';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_enforce_profile_insert_role ON public.profiles;
+CREATE TRIGGER trg_enforce_profile_insert_role
+BEFORE INSERT ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.enforce_profile_insert_role();
 
 -- 11. STORAGE: BUCKET 'sakala-assets' UNTUK UPLOAD GAMBAR
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -155,8 +253,15 @@ DROP POLICY IF EXISTS "Public Read Access on sakala-assets" ON storage.objects;
 DROP POLICY IF EXISTS "Allow authenticated upload to sakala-assets" ON storage.objects;
 DROP POLICY IF EXISTS "Allow authenticated update to sakala-assets" ON storage.objects;
 DROP POLICY IF EXISTS "Allow authenticated delete on sakala-assets" ON storage.objects;
+DROP POLICY IF EXISTS "Admin upload to sakala-assets" ON storage.objects;
+DROP POLICY IF EXISTS "Admin update on sakala-assets" ON storage.objects;
+DROP POLICY IF EXISTS "Admin delete on sakala-assets" ON storage.objects;
 
+-- Public read for assets (needed for storefront & gallery display)
 CREATE POLICY "Public Read Access on sakala-assets" ON storage.objects FOR SELECT USING (bucket_id = 'sakala-assets');
-CREATE POLICY "Allow authenticated upload to sakala-assets" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'sakala-assets');
-CREATE POLICY "Allow authenticated update to sakala-assets" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'sakala-assets');
-CREATE POLICY "Allow authenticated delete on sakala-assets" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'sakala-assets');
+
+-- Admin-only upload, update, and delete (SEC-005)
+CREATE POLICY "Admin upload to sakala-assets" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'sakala-assets' AND public.is_admin());
+CREATE POLICY "Admin update on sakala-assets" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'sakala-assets' AND public.is_admin()) WITH CHECK (bucket_id = 'sakala-assets' AND public.is_admin());
+CREATE POLICY "Admin delete on sakala-assets" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'sakala-assets' AND public.is_admin());
+

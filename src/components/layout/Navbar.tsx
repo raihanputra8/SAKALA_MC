@@ -14,9 +14,11 @@ export default function Navbar() {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Close mobile menu on ESC key or desktop resize
   useEffect(() => {
+    setMounted(true);
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -62,6 +64,8 @@ export default function Navbar() {
       document.body.style.overflow = '';
     };
   }, [mobileMenuOpen]);
+
+  const showAdminLink = mounted && isAdmin;
 
   return (
     <>
@@ -139,20 +143,20 @@ export default function Navbar() {
             </button>
 
             {/* Admin CMS Link (Desktop only) */}
-            {isAdmin && (
+            {showAdminLink && (
               <Link
                 href="/admin"
-                className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.14em] uppercase text-[#C5AA00] hover:text-[#070F18] hover:border-[#070F18] transition-all py-1 px-2 border border-[#C5AA00]/30 rounded-xs bg-[#C5AA00]/5 btn-tactile"
+                className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#C5AA00] hover:text-black hover:bg-[#C5AA00] transition-all py-1.5 px-2.5 border border-[#C5AA00] rounded-xs bg-[#C5AA00]/10 btn-tactile shadow-xs"
                 title="Admin CMS Dashboard"
               >
-                <Shield className="w-3 h-3" />
-                <span>CMS</span>
+                <Shield className="w-3.5 h-3.5" />
+                <span>CMS PORTAL</span>
               </Link>
             )}
 
             {/* Account Profile / Login (Desktop) */}
             <div className="hidden sm:block">
-              {user ? (
+              {mounted && user ? (
                 <Link 
                   href="/account"
                   className="w-7 h-7 rounded-full overflow-hidden border border-[#C5AA00]/70 flex-shrink-0 hover:border-[#070F18] hover:scale-105 transition-all btn-tactile block"
@@ -308,12 +312,12 @@ export default function Navbar() {
                 <ChevronRight className="w-4 h-4 text-[#C5AA00] group-hover:translate-x-1 transition-transform" />
               </Link>
 
-              {/* Admin CMS (if admin) */}
-              {isAdmin && (
+              {/* Admin CMS (if admin or dev) */}
+              {showAdminLink && (
                 <Link
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between py-3.5 px-3 rounded-xs bg-[#C5AA00]/10 border border-[#C5AA00]/30 hover:bg-[#C5AA00]/20 transition-colors mt-2"
+                  className="flex items-center justify-between py-3.5 px-3 rounded-xs bg-[#C5AA00]/15 border border-[#C5AA00] hover:bg-[#C5AA00]/25 transition-colors mt-2"
                 >
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-[#C5AA00]" />
@@ -328,7 +332,7 @@ export default function Navbar() {
 
             {/* Mobile Footer Area */}
             <div className="p-6 border-t border-white/10 bg-black/40">
-              {user ? (
+              {mounted && user ? (
                 <Link
                   href="/account"
                   onClick={() => setMobileMenuOpen(false)}

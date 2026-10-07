@@ -9,11 +9,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, isAdmin, loading } = useAuth();
   const router = useRouter();
 
+  const hasAccess = isAdmin;
+
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
+    if (!loading && !hasAccess) {
       router.replace('/login');
     }
-  }, [user, isAdmin, loading, router]);
+  }, [hasAccess, loading, router]);
 
   if (loading) {
     return (
@@ -28,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!hasAccess) {
     return null;
   }
 
